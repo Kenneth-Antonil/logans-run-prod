@@ -3,157 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Team Hub | Yellow Edition</title>
+    <title>PROD-HUB | Production Management</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Yellow to Deep Yellow/Gold Theme */
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #1a1a1b; color: #f0f0f0; padding: 20px; }
+        :root {
+            --primary-yellow: #ffcc00;
+            --deep-yellow: #e6b800;
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+        }
+
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; }
         .hidden { display: none; }
         
-        .auth-container, .dashboard { 
-            max-width: 450px; 
-            margin: 40px auto; 
-            background: #2d2e30; 
-            padding: 30px; 
-            border-radius: 12px; 
-            border-top: 5px solid #ffcc00; /* Yellow accent */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
+        nav { background: #000; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-yellow); }
+        .nav-logo { font-weight: 800; letter-spacing: 2px; color: var(--primary-yellow); font-size: 1.2rem; }
 
-        h2, h3 { color: #ffcc00; margin-top: 0; }
+        .auth-container { max-width: 400px; margin: 100px auto; background: var(--card-bg); padding: 40px; border-radius: 12px; text-align: center; border-top: 5px solid var(--primary-yellow); }
         
-        input { 
-            width: 100%; padding: 12px; margin: 10px 0; 
-            box-sizing: border-box; background: #202124; 
-            border: 1px solid #444; color: white; border-radius: 6px; 
+        .dashboard-wrapper { max-width: 1200px; margin: 2rem auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
+        .card h3 { margin-top: 0; color: var(--primary-yellow); border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        input, textarea { 
+            width: 100%; padding: 12px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; 
+            color: white; border-radius: 6px; box-sizing: border-box; 
         }
+        input:focus { border-color: var(--primary-yellow); outline: none; }
 
-        input:focus { border-color: #ffcc00; outline: none; }
-
-        /* Yellow Buttons */
         button { 
-            width: 100%; padding: 12px; 
-            background: #ffcc00; /* Yellow */
-            border: none; cursor: pointer; 
-            font-weight: bold; color: #1a1a1b; 
-            border-radius: 6px; transition: 0.2s;
-            margin-top: 10px;
+            background: var(--primary-yellow); color: #000; border: none; padding: 12px 20px; 
+            border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%;
         }
+        button:hover { background: var(--deep-yellow); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary-yellow); color: var(--primary-yellow); margin-top: 10px; }
+        .btn-small { width: auto; padding: 6px 12px; font-size: 0.7rem; margin: 0; }
 
-        button:hover { background: #e6b800; /* Deep Yellow */ }
+        .item-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; background: #252525; margin-bottom: 8px; border-radius: 6px; 
+            border-left: 4px solid var(--primary-yellow);
+        }
+        .item-row.completed { border-left-color: #555; opacity: 0.6; }
+        .item-row.completed span { text-decoration: line-through; }
         
-        .btn-secondary { background: #444; color: white; margin-top: 5px; }
-        .btn-secondary:hover { background: #555; }
-        .btn-logout { background: #f28b82; color: #1a1a1b; width: auto; padding: 5px 15px; float: right; }
+        .link-item { display: block; color: var(--primary-yellow); text-decoration: none; padding: 5px 0; font-size: 0.9rem; }
+        .link-item:hover { text-decoration: underline; }
 
-        /* Task Items */
-        .task-item { 
-            background: #36373a;
-            margin-bottom: 8px;
-            padding: 12px; 
-            border-radius: 6px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border-left: 3px solid #ffcc00;
-        }
+        .tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #333; color: var(--primary-yellow); margin-right: 8px; }
 
-        .task-text { flex-grow: 1; margin-right: 10px; }
-        .completed { text-decoration: line-through; color: #888; border-left-color: #555; }
-        
-        .status-btn { 
-            width: auto; padding: 5px 10px; font-size: 0.8rem; margin: 0;
-            background: #444; color: #ffcc00; border: 1px solid #ffcc00;
-        }
+        @media (max-width: 768px) { .dashboard-wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <div id="auth-section" class="auth-container">
-        <h2>🎬 Team Login</h2>
-        <input type="email" id="email" placeholder="Email">
+        <div class="nav-logo" style="margin-bottom: 20px;">PRODUCTION HUB</div>
+        <input type="email" id="email" placeholder="Work Email">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="signIn()">Login</button>
-        <button onclick="signUp()" class="btn-secondary">Sign Up</button>
+        <button onclick="signIn()">LOG IN</button>
+        <button onclick="signUp()" class="btn-outline">REGISTER TEAM MEMBER</button>
     </div>
 
-    <div id="dashboard-section" class="dashboard hidden">
-        <button onclick="signOut()" class="btn-logout">Logout</button>
-        <h2>Work Schedule</h2>
-        <p style="font-size: 0.9rem;">Logged in: <span id="user-email" style="color:#ffcc00"></span></p>
-        
-        <hr style="border: 0.5px solid #444; margin: 20px 0;">
-        
-        <h3>✅ Production Checklist</h3>
-        <div id="task-list"></div>
-        
-        <div style="margin-top: 20px;">
-            <input type="text" id="newTask" placeholder="Add AV Script, Pitch, or Schedule...">
-            <button onclick="addTask()">+ Add to List</button>
+    <div id="dashboard-section" class="hidden">
+        <nav>
+            <div class="nav-logo">PROD-HUB</div>
+            <div>
+                <span id="user-email" style="margin-right: 15px; font-size: 0.8rem; opacity: 0.7;"></span>
+                <button onclick="signOut()" class="btn-small btn-outline">LOGOUT</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-wrapper">
+            <div class="main-content">
+                <div class="card">
+                    <h3>🎬 Production Checklist</h3>
+                    <div id="task-list"></div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="newTask" placeholder="Add task..." style="margin:0;">
+                        <button onclick="addTask()" style="width: 100px; margin:0;">ADD</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💡 Story Pitches</h3>
+                    <div id="pitch-list"></div>
+                    <textarea id="newPitch" placeholder="Write a new story pitch..." rows="2"></textarea>
+                    <button onclick="addPitch()">SUBMIT PITCH</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <h3>🔗 Quick Links</h3>
+                    <div id="link-list"></div>
+                    <input type="text" id="linkName" placeholder="Name (e.g. Drive)">
+                    <input type="text" id="linkUrl" placeholder="URL">
+                    <button onclick="addLink()" class="btn-outline">SAVE LINK</button>
+                </div>
+            </div>
         </div>
     </div>
 
 <script>
-    // Initialize Supabase
     const _supabase = supabase.createClient('https://mkteilecrgeneahnrntz.supabase.co', 'sb_publishable_rpW0yklH9QEdz7c41e2gTw_k1v2DTdO');
 
-    // 1. Auth Logic
-    async function signUp() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        const { data, error } = await _supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                // Pinipilit bumalik sa kasalukuyang URL ng GitHub site mo
-                emailRedirectTo: window.location.href 
-            }
-        });
-        
-        if (error) alert("Error: " + error.message); 
-        else alert("Verification email sent! Pakicheck ang inbox o spam folder.");
-    }
-
-    async function signIn() {
-        const { data, error } = await _supabase.auth.signInWithPassword({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-        });
-        if (error) alert("Login failed: " + error.message); else checkUser();
-    }
-
-    async function signOut() {
-        await _supabase.auth.signOut();
-        location.reload();
-    }
-
-    // 2. Data Logic
     async function checkUser() {
         const { data: { user } } = await _supabase.auth.getUser();
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('user-email').innerText = user.email;
-            fetchTasks(user.id);
+            loadAllData(user.id);
         }
     }
 
-    async function fetchTasks(userId) {
-        const { data, error } = await _supabase
-            .from('tasks')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: true });
+    async function signUp() {
+        const { error } = await _supabase.auth.signUp({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            options: { emailRedirectTo: window.location.href }
+        });
+        if (error) alert(error.message); else alert("Check your email!");
+    }
 
-        const list = document.getElementById('task-list');
+    async function signIn() {
+        const { error } = await _supabase.auth.signInWithPassword({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+        });
+        if (error) alert("Login failed"); else checkUser();
+    }
+
+    function signOut() { _supabase.auth.signOut(); location.reload(); }
+
+    // DATA LOADING
+    function loadAllData(userId) {
+        fetchTasks(userId);
+        fetchPitches(userId);
+        fetchLinks(userId);
+    }
+
+    async function fetchTasks(userId) {
+        const { data } = await _supabase.from('tasks').select('*').eq('user_id', userId).order('created_at', { ascending: true });
         if (data) {
-            list.innerHTML = data.map(t => `
-                <div class="task-item ${t.is_completed ? 'completed' : ''}">
-                    <span class="task-text">${t.task_name}</span>
-                    <button class="status-btn" onclick="toggleTask('${t.id}', ${t.is_completed})">
-                        ${t.is_completed ? 'Undo' : 'Done'}
-                    </button>
+            document.getElementById('task-list').innerHTML = data.map(t => `
+                <div class="item-row ${t.is_completed ? 'completed' : ''}">
+                    <span>${t.task_name}</span>
+                    <button class="btn-small" onclick="toggleTask('${t.id}', ${t.is_completed})">${t.is_completed ? 'UNDO' : 'DONE'}</button>
                 </div>
             `).join('');
         }
@@ -161,33 +160,54 @@
 
     async function addTask() {
         const { data: { user } } = await _supabase.auth.getUser();
-        const taskInput = document.getElementById('newTask');
-        if (!taskInput.value) return;
+        const name = document.getElementById('newTask').value;
+        if (!name) return;
+        await _supabase.from('tasks').insert([{ task_name: name, user_id: user.id }]);
+        document.getElementById('newTask').value = '';
+        fetchTasks(user.id);
+    }
 
-        const { error } = await _supabase
-            .from('tasks')
-            .insert([{ 
-                task_name: taskInput.value, 
-                user_id: user.id, 
-                is_completed: false 
-            }]);
+    async function toggleTask(id, current) {
+        const { data: { user } } = await _supabase.auth.getUser();
+        await _supabase.from('tasks').update({ is_completed: !current }).eq('id', id);
+        fetchTasks(user.id);
+    }
 
-        if (error) alert("Error: " + error.message);
-        else {
-            taskInput.value = '';
-            fetchTasks(user.id);
+    // PITCHES (Needs 'pitches' table: id, user_id, content)
+    async function fetchPitches(userId) {
+        const { data } = await _supabase.from('pitches').select('*').eq('user_id', userId);
+        if (data) {
+            document.getElementById('pitch-list').innerHTML = data.map(p => `
+                <div class="item-row"><span>${p.content}</span></div>
+            `).join('');
         }
     }
 
-    async function toggleTask(taskId, currentState) {
+    async function addPitch() {
         const { data: { user } } = await _supabase.auth.getUser();
-        const { error } = await _supabase
-            .from('tasks')
-            .update({ is_completed: !currentState })
-            .eq('id', taskId);
-        
-        if (error) alert(error.message);
-        else fetchTasks(user.id);
+        const content = document.getElementById('newPitch').value;
+        await _supabase.from('pitches').insert([{ content, user_id: user.id }]);
+        document.getElementById('newPitch').value = '';
+        fetchPitches(user.id);
+    }
+
+    // LINKS (Needs 'links' table: id, user_id, name, url)
+    async function fetchLinks(userId) {
+        const { data } = await _supabase.from('links').select('*').eq('user_id', userId);
+        if (data) {
+            document.getElementById('link-list').innerHTML = data.map(l => `
+                <a href="${l.url}" target="_blank" class="link-item">🔗 ${l.name}</a>
+            `).join('');
+        }
+    }
+
+    async function addLink() {
+        const { data: { user } } = await _supabase.auth.getUser();
+        const name = document.getElementById('linkName').value;
+        const url = document.getElementById('linkUrl').value;
+        await _supabase.from('links').insert([{ name, url, user_id: user.id }]);
+        document.getElementById('linkName').value = ''; document.getElementById('linkUrl').value = '';
+        fetchLinks(user.id);
     }
 
     checkUser();
