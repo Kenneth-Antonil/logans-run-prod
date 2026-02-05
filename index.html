@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --accent-color: #ffb400;
@@ -66,6 +67,7 @@
         .task-btn { 
             font-size: 0.6rem; padding: 10px 5px; border-radius: 6px; border: 1px solid #444; 
             background: #111; color: #888; cursor: pointer; text-align: center; font-weight: 800; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
         }
         .task-btn.ongoing { border-color: var(--ongoing); color: var(--ongoing); background: rgba(51, 181, 229, 0.05); }
         .task-btn.done { border-color: var(--success); color: var(--success); background: rgba(0, 200, 81, 0.1); }
@@ -86,14 +88,21 @@
         .btn-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 6px 12px; font-size: 0.7rem; margin-top: 12px; border-radius: 6px; }
 
         /* Announcement Board Styling */
-        .announcement-item { border-bottom: 1px solid #2a2a2a; padding: 10px 0; }
+        .announcement-item { border-bottom: 1px solid #2a2a2a; padding: 10px 0; display: flex; align-items: flex-start; gap: 10px; }
         .announcement-item:last-child { border: none; }
+
+        .media-link-btn {
+            display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+            padding: 6px 12px; background: #333; border-radius: 6px; color: var(--accent-color);
+            text-decoration: none; font-size: 0.75rem; border: 1px solid #444;
+        }
 
         @media (max-width: 1099px) {
             .sidebar-left { order: 2; }
             .main-feed { order: 1; }
             .sidebar-right { order: 3; }
         }
+        .icon-sm { width: 14px; height: 14px; }
     </style>
 </head>
 <body>
@@ -105,10 +114,10 @@
             <p style="font-size: 0.85rem; color: #888; margin-bottom: 25px;">Premium Production Workspace</p>
             
             <select id="user-role" style="border: 1px solid var(--accent-color);">
-                <option value="Producer">👤 Role: Producer</option>
-                <option value="Editor">🎞️ Role: Video Editor</option>
-                <option value="Writer">✍️ Role: Script Writer</option>
-                <option value="Camera">🎥 Role: Camera/DP</option>
+                <option value="Producer">Producer</option>
+                <option value="Editor">Video Editor</option>
+                <option value="Writer">Script Writer</option>
+                <option value="Camera">Camera/DP</option>
             </select>
 
             <input type="email" id="email" placeholder="Email Address">
@@ -135,24 +144,27 @@
         <div class="dashboard-wrapper">
             <div class="sidebar-left">
                 <div class="card" style="margin-bottom: 20px;">
-                    <h3>📢 Announcements</h3>
-                    <div id="announcement-board" style="font-size: 0.85rem; color: #ccc;">
-                        <div class="announcement-item">🚀 New project "Summer Series" starts Monday.</div>
-                        <div class="announcement-item">⚙️ Server maintenance at 12:00 AM.</div>
+                    <h3><i data-lucide="megaphone" class="icon-sm"></i> Announcements</h3>
+                    <div id="announcement-board" style="font-size: 0.85rem; color: #ccc; max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
+                        </div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="newAnnouncement" placeholder="Broadcast message..." style="margin:0; font-size: 0.75rem;">
+                        <button onclick="postAnnouncement()" style="width: 45px; padding:0;"><i data-lucide="send" style="width:16px;"></i></button>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3>✨ New Pitch</h3>
+                    <h3><i data-lucide="plus-circle" class="icon-sm"></i> New Pitch</h3>
                     <label style="font-size:0.7rem; color:#888; font-weight: bold; margin-bottom: 5px; display: block;">PRIORITY</label>
                     <select id="pPriority">
-                        <option value="Normal">🟢 Normal</option>
-                        <option value="Urgent">🔴 Urgent</option>
-                        <option value="Backlog">📂 Backlog</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Urgent">Urgent</option>
+                        <option value="Backlog">Backlog</option>
                     </select>
                     <input type="date" id="pDate">
-                    <input type="text" id="pLoc" placeholder="📍 Location">
-                    <input type="text" id="pCam" placeholder="🎥 Camera / DP">
+                    <input type="text" id="pLoc" placeholder="Location">
+                    <input type="text" id="pCam" placeholder="Camera / DP">
+                    <input type="url" id="pMedia" placeholder="Media Link (Image/Video URL)">
                     <textarea id="pAbout" rows="4" placeholder="Describe the story concept..."></textarea>
                     <button onclick="addPitch()">POST TO HUB</button>
                 </div>
@@ -161,7 +173,7 @@
             <div class="main-feed">
                 <div class="card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h3 style="border:none; margin:0;">📺 Production Board</h3>
+                        <h3 style="border:none; margin:0;"><i data-lucide="clapperboard" class="icon-sm"></i> Production Board</h3>
                         <div id="clock" style="font-size:0.9rem; font-weight:900; color:var(--accent-color); background: #000; padding: 5px 12px; border-radius: 6px; border: 1px solid #333;"></div>
                     </div>
                     <div id="pitch-list">Loading feed...</div>
@@ -170,7 +182,7 @@
 
             <div class="sidebar-right">
                 <div class="card" style="margin-bottom: 20px;">
-                    <h3>✅ My Tasks</h3>
+                    <h3><i data-lucide="check-square" class="icon-sm"></i> My Tasks</h3>
                     <div id="task-list"></div>
                     <div style="display:flex; gap:8px; margin-top:15px;">
                         <input type="text" id="newTask" placeholder="Add task..." style="margin:0;">
@@ -200,6 +212,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
         // Real-time Clock Logic
         setInterval(() => {
             const now = new Date();
@@ -224,6 +239,7 @@
 
                 loadGlobalPitches();
                 loadPersonalTasks(user.uid);
+                loadAnnouncements();
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
                 document.getElementById('dashboard-section').classList.add('hidden');
@@ -249,6 +265,29 @@
 
         function handleLogout() { auth.signOut(); }
 
+        function loadAnnouncements() {
+            db.collection("announcements").orderBy("createdAt", "desc").limit(10).onSnapshot(snapshot => {
+                const board = document.getElementById('announcement-board');
+                board.innerHTML = snapshot.docs.map(doc => `
+                    <div class="announcement-item">
+                        <div style="color:var(--accent-color); font-weight:bold; font-size:0.6rem;">${doc.data().author}:</div>
+                        <div>${doc.data().text}</div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        async function postAnnouncement() {
+            const txt = document.getElementById('newAnnouncement').value;
+            if(!txt) return;
+            await db.collection("announcements").add({
+                text: txt,
+                author: auth.currentUser.email.split('@')[0],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('newAnnouncement').value = '';
+        }
+
         function loadGlobalPitches() {
             db.collection("pitches").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 const list = document.getElementById('pitch-list');
@@ -265,17 +304,20 @@
                             <span class="priority-tag ${tagClass}">${p.priority || 'Normal'}</span>
                             <div style="font-weight:bold; color:var(--accent-color); margin-bottom:12px; font-size: 0.9rem;">📅 ${p.date || 'TBD'}</div>
                             <div style="display:grid; grid-template-columns:1fr 1fr; font-size:0.75rem; color:#aaa; margin-bottom:12px; gap: 10px;">
-                                <span>📍 ${p.location}</span>
-                                <span>🎥 ${p.cameraman}</span>
+                                <span><i data-lucide="map-pin" class="icon-sm"></i> ${p.location}</span>
+                                <span><i data-lucide="camera" class="icon-sm"></i> ${p.cameraman}</span>
                             </div>
-                            <div style="color:#eee; background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; font-size:0.9rem; border: 1px solid #333;">${p.about}</div>
+                            <div style="color:#eee; background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; font-size:0.9rem; border: 1px solid #333;">
+                                ${p.about}
+                                ${p.mediaLink ? `<br><a href="${p.mediaLink}" target="_blank" class="media-link-btn"><i data-lucide="external-link" class="icon-sm"></i> VIEW MEDIA</a>` : ''}
+                            </div>
                             
                             <div class="prod-tasks">
                                 <span style="font-size:0.6rem; color:var(--accent-color); font-weight:900; letter-spacing: 0.5px;">PROGRESS TRACKER</span>
                                 <div class="task-grid">
-                                    <div class="task-btn ${p.tasks?.script || ''}" onclick="updateProdTask('${doc.id}', 'script', '${p.tasks?.script || ''}')">📝 SCRIPT</div>
-                                    <div class="task-btn ${p.tasks?.shoot || ''}" onclick="updateProdTask('${doc.id}', 'shoot', '${p.tasks?.shoot || ''}')">🎬 SHOOT</div>
-                                    <div class="task-btn ${p.tasks?.edit || ''}" onclick="updateProdTask('${doc.id}', 'edit', '${p.tasks?.edit || ''}')">✂️ EDIT</div>
+                                    <div class="task-btn ${p.tasks?.script || ''}" onclick="updateProdTask('${doc.id}', 'script', '${p.tasks?.script || ''}')"><i data-lucide="file-text" class="icon-sm"></i> SCRIPT</div>
+                                    <div class="task-btn ${p.tasks?.shoot || ''}" onclick="updateProdTask('${doc.id}', 'shoot', '${p.tasks?.shoot || ''}')"><i data-lucide="video" class="icon-sm"></i> SHOOT</div>
+                                    <div class="task-btn ${p.tasks?.edit || ''}" onclick="updateProdTask('${doc.id}', 'edit', '${p.tasks?.edit || ''}')"><i data-lucide="scissors" class="icon-sm"></i> EDIT</div>
                                 </div>
                             </div>
 
@@ -286,6 +328,7 @@
                         </div>
                     `;
                 }).join('');
+                lucide.createIcons();
             });
         }
 
@@ -307,12 +350,13 @@
                 date: document.getElementById('pDate').value,
                 location: document.getElementById('pLoc').value,
                 cameraman: document.getElementById('pCam').value,
+                mediaLink: document.getElementById('pMedia').value,
                 about: about,
                 author: auth.currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 tasks: { script: "", shoot: "", edit: "" }
             });
-            ['pAbout', 'pLoc', 'pCam', 'pDate'].forEach(id => document.getElementById(id).value = '');
+            ['pAbout', 'pLoc', 'pCam', 'pDate', 'pMedia'].forEach(id => document.getElementById(id).value = '');
         }
 
         async function deletePitch(id) {
