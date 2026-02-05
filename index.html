@@ -17,6 +17,7 @@
             --text-dim: #a0a0a0;
             --danger: #ff4444;
             --success: #00c851;
+            --ongoing: #33b5e5;
         }
 
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; }
@@ -46,6 +47,17 @@
         .priority-tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; float: right; font-weight: bold; }
         .tag-urgent { background: var(--danger); color: white; }
         
+        /* Production Tasks Styling */
+        .prod-tasks { margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
+        .task-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; margin-top: 8px; }
+        .task-btn { 
+            font-size: 0.65rem; padding: 5px; border-radius: 4px; border: 1px solid #444; 
+            background: #111; color: #888; cursor: pointer; text-align: center;
+        }
+        .task-btn.ongoing { border-color: var(--ongoing); color: var(--ongoing); }
+        .task-btn.done { border-color: var(--success); color: var(--success); background: rgba(0, 200, 81, 0.1); }
+        .pitch-row.status-done { border-left-color: var(--success) !important; box-shadow: inset 0 0 10px rgba(0, 200, 81, 0.1); }
+
         /* Inputs & Buttons */
         input, textarea, select { 
             width: 100%; padding: 10px; margin-bottom: 12px; background: var(--input-bg); 
@@ -67,7 +79,15 @@
         <div style="background: rgba(20,20,20,0.9); padding: 40px; border-radius: 15px; width: 350px; text-align: center; border: 1px solid var(--accent-color);">
             <img src="https://i.imgur.com/7d3ROpd.jpeg" style="width: 80px; border-radius: 50%; border: 2px solid var(--accent-color); margin-bottom: 15px;">
             <h2 style="color: var(--accent-color); margin: 0;">PROD-HUB</h2>
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 25px;">Team Collaboration Suite</p>
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 15px;">Team Collaboration Suite</p>
+            
+            <select id="user-role" style="margin-bottom: 12px; border: 1px solid var(--accent-color);">
+                <option value="Producer">Role: Producer</option>
+                <option value="Editor">Role: Video Editor</option>
+                <option value="Writer">Role: Script Writer</option>
+                <option value="Camera">Role: Camera/DP</option>
+            </select>
+
             <input type="email" id="email" placeholder="Email Address">
             <input type="password" id="password" placeholder="Password">
             <button onclick="handleLogin()">ENTER HUB</button>
@@ -81,6 +101,7 @@
                 <img src="https://i.imgur.com/7d3ROpd.jpeg"> PROD-HUB
             </div>
             <div>
+                <span id="role-tag" style="background:var(--accent-color); color:black; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-right:10px; font-weight:bold;"></span>
                 <span id="user-display" style="font-size:0.8rem; margin-right:15px; color:var(--text-dim);"></span>
                 <button onclick="handleLogout()" style="width:auto; padding:5px 15px; font-size:0.7rem;">LOGOUT</button>
             </div>
@@ -156,11 +177,18 @@
         const greeting = hour < 12 ? "Good Morning, Producer!" : hour < 18 ? "Good Afternoon!" : "Good Evening, Team!";
         document.getElementById('greeting-msg').innerText = greeting;
 
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged(async user => {
             if (user) {
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('dashboard-section').classList.remove('hidden');
                 document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
+                
+                // Fetch Role
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if(userDoc.exists) {
+                    document.getElementById('role-tag').innerText = userDoc.data().role;
+                }
+
                 loadGlobalPitches();
                 loadPersonalTasks(user.uid);
             } else {
@@ -180,7 +208,12 @@
         async function handleSignup() {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
-            try { await auth.createUserWithEmailAndPassword(e, p); alert("Account Created!"); } catch(err) { alert(err.message); }
+            const r = document.getElementById('user-role').value;
+            try { 
+                const cred = await auth.createUserWithEmailAndPassword(e, p);
+                await db.collection("users").doc(cred.user.uid).set({ role: r, email: e });
+                alert("Account Created as " + r); 
+            } catch(err) { alert(err.message); }
         }
 
         function handleLogout() { auth.signOut(); }
@@ -193,9 +226,13 @@
                     const isOwner = auth.currentUser.email === p.author;
                     const priorityClass = p.priority === 'Urgent' ? 'priority-high' : '';
                     const tagClass = p.priority === 'Urgent' ? 'tag-urgent' : '';
+                    
+                    // Check if overall story is done
+                    const isStoryDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done';
+                    const storyDoneClass = isStoryDone ? 'status-done' : '';
 
                     return `
-                        <div class="pitch-row ${priorityClass}">
+                        <div class="pitch-row ${priorityClass} ${storyDoneClass}">
                             <span class="priority-tag ${tagClass}">${p.priority || 'Normal'}</span>
                             <div style="font-weight:bold; color:var(--accent-color); margin-bottom:10px;">📅 ${p.date || 'TBD'}</div>
                             <div style="display:grid; grid-template-columns:1fr 1fr; font-size:0.8rem; color:#aaa; margin-bottom:10px;">
@@ -203,6 +240,16 @@
                                 <span>🎥 ${p.cameraman}</span>
                             </div>
                             <div style="color:#eee; background:#2a2a2a; padding:10px; border-radius:5px; font-size:0.9rem;">${p.about}</div>
+                            
+                            <div class="prod-tasks">
+                                <span style="font-size:0.65rem; color:var(--accent-color); font-weight:bold;">PRODUCTION STATUS:</span>
+                                <div class="task-grid">
+                                    <div class="task-btn ${p.tasks?.script || ''}" onclick="updateProdTask('${doc.id}', 'script', '${p.tasks?.script || ''}')">📝 SCRIPT</div>
+                                    <div class="task-btn ${p.tasks?.shoot || ''}" onclick="updateProdTask('${doc.id}', 'shoot', '${p.tasks?.shoot || ''}')">🎬 SHOOT</div>
+                                    <div class="task-btn ${p.tasks?.edit || ''}" onclick="updateProdTask('${doc.id}', 'edit', '${p.tasks?.edit || ''}')">✂️ EDIT</div>
+                                </div>
+                            </div>
+
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <span style="font-size:0.6rem; color:#555; margin-top:8px;">Posted by: ${p.author}</span>
                                 ${isOwner ? `<button class="btn-delete" onclick="deletePitch('${doc.id}')">Delete</button>` : ''}
@@ -211,6 +258,17 @@
                     `;
                 }).join('');
             });
+        }
+
+        async function updateProdTask(docId, taskType, currentStatus) {
+            let nextStatus = "";
+            if (currentStatus === "") nextStatus = "ongoing";
+            else if (currentStatus === "ongoing") nextStatus = "done";
+            else nextStatus = "";
+
+            const updateObj = {};
+            updateObj[`tasks.${taskType}`] = nextStatus;
+            await db.collection("pitches").doc(docId).update(updateObj);
         }
 
         async function addPitch() {
@@ -224,9 +282,9 @@
                 cameraman: document.getElementById('pCam').value,
                 about: about,
                 author: auth.currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                tasks: { script: "", shoot: "", edit: "" } // Initialize empty tasks
             });
-            // Reset fields
             ['pAbout', 'pLoc', 'pCam', 'pDate'].forEach(id => document.getElementById(id).value = '');
         }
 
