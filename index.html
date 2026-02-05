@@ -116,6 +116,11 @@
         /* ADDED STYLES FOR ASSIGNMENT */
         .assignment-box { font-size: 0.65rem; color: #777; margin-top: 5px; display: flex; gap: 10px; }
         .assignment-box b { color: var(--accent-color); }
+
+        /* NEW IMPROVED STYLES */
+        .status-text { font-size: 0.5rem; text-transform: uppercase; margin-top: 2px; opacity: 0.8; }
+        .task-select { background: #000; color: white; border: 1px solid #444; font-size: 0.6rem; padding: 2px; border-radius: 4px; margin-top: 5px; width: 100%; cursor: pointer; }
+        .btn-date-edit { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 2px 5px; font-size: 0.6rem; width: auto; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -378,6 +383,18 @@
             document.getElementById('newAnnouncement').value = '';
         }
 
+        // EXCLUSIVE: UPDATE DATE FOR AP AND HOST
+        async function editAiringDate(id) {
+            if (currentUserRole !== 'Associate Producer' && currentUserRole !== 'Host') {
+                return alert("Only Associate Producers or Hosts can edit the Airing Date.");
+            }
+            const newDate = prompt("Enter New Airing Date (YYYY-MM-DD):");
+            if (newDate) {
+                await db.collection("pitches").doc(id).update({ date: newDate });
+                alert("Date Updated!");
+            }
+        }
+
         function loadGlobalPitches() {
             db.collection("pitches").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 const list = document.getElementById('pitch-list');
@@ -406,18 +423,22 @@
                         const isStoryDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done' && p.tasks?.vo === 'done';
                         const storyDoneClass = isStoryDone ? 'status-done' : '';
                         
+                        const isAdminRole = (currentUserRole === 'Associate Producer' || currentUserRole === 'Producer');
                         const canApprove = (currentUserRole === 'Associate Producer' || currentUserRole === 'Host' || currentUserRole === 'Producer');
 
                         // Permission Logic
                         const isAssignedEditor = auth.currentUser.email === p.editor;
                         const isAssignedCam = auth.currentUser.email === p.cameraman;
-                        const hasFullAccess = canApprove || isOwner;
+                        const hasFullAccess = isAdminRole || isOwner;
 
                         return `
                             <div class="pitch-row ${priorityClass} ${storyDoneClass}">
                                 <span class="priority-tag ${tagClass}">${p.priority || 'Normal'}</span>
                                 ${isStoryDone ? '<span class="airing-tag">READY FOR AIRING</span>' : ''}
-                                <div style="font-weight:bold; color:var(--accent-color); margin-bottom:5px; font-size: 0.9rem;">📅 ${p.date || 'TBD'}</div>
+                                <div style="font-weight:bold; color:var(--accent-color); margin-bottom:5px; font-size: 0.9rem; display:flex; align-items:center;">
+                                    📅 ${p.date || 'TBD'} 
+                                    ${(currentUserRole === 'Associate Producer' || currentUserRole === 'Host') ? `<button class="btn-date-edit" onclick="editAiringDate('${doc.id}')">EDIT DATE</button>` : ''}
+                                </div>
                                 <div class="assignment-box">
                                     <span><i data-lucide="camera" class="icon-sm"></i> Cam: <b>${p.cameraman || 'Unassigned'}</b></span>
                                     <span><i data-lucide="scissors" class="icon-sm"></i> Editor: <b>${p.editor || 'Unassigned'}</b></span>
@@ -436,21 +457,46 @@
                                 <div class="prod-tasks">
                                     <span style="font-size:0.6rem; color:var(--accent-color); font-weight:900; letter-spacing: 0.5px;">PROGRESS TRACKER</span>
                                     <div class="task-grid">
-                                        <div class="task-btn ${p.tasks?.script || ''}" onclick="handleScriptAction('${doc.id}', '${p.tasks?.script || ''}', ${hasFullAccess})">
+                                        <div class="task-btn ${p.tasks?.script || ''}">
                                             <i data-lucide="file-text" class="icon-sm"></i> 
-                                            SCRIPT ${p.tasks?.script === 'pending' ? '(Wait Apprv)' : ''}
+                                            SCRIPT
+                                            <span class="status-text">${p.tasks?.script || 'pending'}</span>
+                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'script', this.value, ${isOwner || isAdminRole})">
+                                                <option value="" ${p.tasks?.script === '' ? 'selected' : ''}>-- Select --</option>
+                                                <option value="ongoing" ${p.tasks?.script === 'ongoing' ? 'selected' : ''}>Ongoing</option>
+                                                <option value="pending" ${p.tasks?.script === 'pending' ? 'selected' : ''}>Wait Apprv</option>
+                                                <option value="done" ${p.tasks?.script === 'done' ? 'selected' : ''}>Approved</option>
+                                            </select>
                                         </div>
 
-                                        <div class="task-btn ${p.tasks?.shoot || ''}" onclick="updateBasicTask('${doc.id}', 'shoot', '${p.tasks?.shoot || ''}', ${hasFullAccess || isAssignedCam})">
+                                        <div class="task-btn ${p.tasks?.shoot || ''}">
                                             <i data-lucide="video" class="icon-sm"></i> SHOOT
+                                            <span class="status-text">${p.tasks?.shoot || 'pending'}</span>
+                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'shoot', this.value, ${isOwner || isAdminRole || isAssignedCam})">
+                                                <option value="" ${p.tasks?.shoot === '' ? 'selected' : ''}>-- Status --</option>
+                                                <option value="ongoing" ${p.tasks?.shoot === 'ongoing' ? 'selected' : ''}>Shooting</option>
+                                                <option value="done" ${p.tasks?.shoot === 'done' ? 'selected' : ''}>Done</option>
+                                            </select>
                                         </div>
 
-                                        <div class="task-btn ${p.tasks?.edit || ''}" onclick="updateBasicTask('${doc.id}', 'edit', '${p.tasks?.edit || ''}', ${hasFullAccess || isAssignedEditor})">
+                                        <div class="task-btn ${p.tasks?.edit || ''}">
                                             <i data-lucide="scissors" class="icon-sm"></i> EDIT
+                                            <span class="status-text">${p.tasks?.edit || 'pending'}</span>
+                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'edit', this.value, ${isAssignedEditor || isAdminRole})">
+                                                <option value="" ${p.tasks?.edit === '' ? 'selected' : ''}>-- Status --</option>
+                                                <option value="ongoing" ${p.tasks?.edit === 'ongoing' ? 'selected' : ''}>Editing</option>
+                                                <option value="done" ${p.tasks?.edit === 'done' ? 'selected' : ''}>Done</option>
+                                            </select>
                                         </div>
 
-                                        <div class="task-btn ${p.tasks?.vo || ''}" onclick="handleVOAction('${doc.id}', '${p.tasks?.vo || ''}', ${currentUserRole === 'Host' || canApprove})">
+                                        <div class="task-btn ${p.tasks?.vo || ''}">
                                             <i data-lucide="mic" class="icon-sm"></i> VO
+                                            <span class="status-text">${p.tasks?.vo || 'pending'}</span>
+                                            <select class="task-select" onchange="handleVOActionDropdown('${doc.id}', this.value, ${currentUserRole === 'Host' || currentUserRole === 'Associate Producer'})">
+                                                <option value="" ${p.tasks?.vo === '' ? 'selected' : ''}>-- Status --</option>
+                                                <option value="ongoing" ${p.tasks?.vo === 'ongoing' ? 'selected' : ''}>Recording</option>
+                                                <option value="done" ${p.tasks?.vo === 'done' ? 'selected' : ''}>Done</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -474,65 +520,49 @@
             });
         }
 
-        // Logic for SCRIPT (Upload -> Approval)
-        async function handleScriptAction(id, currentStatus, isAdmin) {
-            if (currentStatus === "" || currentStatus === "ongoing") {
-                const link = prompt("Paste Script Link (Google Docs/Drive):");
-                if (link) {
-                    await db.collection("pitches").doc(id).update({ 
-                        scriptLink: link, 
-                        "tasks.script": "pending" 
-                    });
-                    alert("Script submitted for approval.");
-                }
-            } else if (currentStatus === "pending") {
-                if (isAdmin) {
-                    if (confirm("Approve this script? Status will turn GREEN.")) {
-                        await db.collection("pitches").doc(id).update({ "tasks.script": "done" });
-                    }
-                } else {
-                    alert("Waiting for Associate Producer/Host approval.");
-                }
-            } else {
-                if(isAdmin && confirm("Reset Script status?")) {
-                    await db.collection("pitches").doc(id).update({ "tasks.script": "" });
-                }
+        // NEW DROPDOWN HANDLER WITH PERMISSIONS
+        async function handleTaskDropdown(docId, taskType, newValue, hasPermission) {
+            if (!hasPermission) {
+                alert("Permission Denied: You are not authorized to update this task.");
+                loadGlobalPitches(); // Refresh to revert dropdown
+                return;
             }
+
+            // Custom Script Link Prompt
+            if (taskType === 'script' && (newValue === 'pending' || newValue === 'done')) {
+                const link = prompt("Confirm/Paste Script Link:");
+                if (link) await db.collection("pitches").doc(docId).update({ scriptLink: link });
+            }
+
+            const updateObj = {};
+            updateObj[`tasks.${taskType}`] = newValue;
+            await db.collection("pitches").doc(docId).update(updateObj);
         }
 
-        // Logic for VO (Host Only)
-        async function handleVOAction(id, currentStatus, isHost) {
-            if (!isHost) return alert("Only the Program Host or Producers can update Voice Over.");
+        // NEW VO DROPDOWN HANDLER
+        async function handleVOActionDropdown(id, newValue, hasPermission) {
+            if (!hasPermission) {
+                alert("Only the Program Host or Associate Producer can update Voice Over.");
+                loadGlobalPitches();
+                return;
+            }
             
-            if (currentStatus === "" || currentStatus === "ongoing") {
+            if (newValue === "done") {
                 const link = prompt("Paste Voice Over File Link:");
                 if (link) {
                     await db.collection("pitches").doc(id).update({ 
                         voLink: link, 
                         "tasks.vo": "done" 
                     });
+                } else {
+                    loadGlobalPitches();
                 }
             } else {
-                if(confirm("Reset VO status?")) {
-                    await db.collection("pitches").doc(id).update({ "tasks.vo": "" });
-                }
+                await db.collection("pitches").doc(id).update({ "tasks.vo": newValue });
             }
         }
 
-        // Logic for SHOOT & EDIT
-        async function updateBasicTask(docId, taskType, currentStatus, hasPermission) {
-            if (!hasPermission) return alert("You are not assigned to this role for this segment.");
-            
-            let nextStatus = "";
-            if (currentStatus === "") nextStatus = "ongoing";
-            else if (currentStatus === "ongoing") nextStatus = "done";
-            else nextStatus = "";
-            
-            const updateObj = {};
-            updateObj[`tasks.${taskType}`] = nextStatus;
-            await db.collection("pitches").doc(docId).update(updateObj);
-        }
-
+        // MAINTAINED FUNCTIONS
         async function approvePitch(id) {
             if(confirm("Approve this story for production?")) {
                 await db.collection("pitches").doc(id).update({ approved: true });
@@ -547,8 +577,8 @@
                 priority: document.getElementById('pPriority').value,
                 date: document.getElementById('pDate').value,
                 location: document.getElementById('pLoc').value,
-                cameraman: document.getElementById('pCam').value, // Assignment
-                editor: document.getElementById('pEditor').value,    // Assignment
+                cameraman: document.getElementById('pCam').value,
+                editor: document.getElementById('pEditor').value,
                 mediaLink: document.getElementById('pMedia').value,
                 about: about,
                 author: auth.currentUser.email,
