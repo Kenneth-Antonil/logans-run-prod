@@ -21,83 +21,75 @@
         }
 
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; line-height: 1.5; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; line-height: 1.6; }
         .hidden { display: none !important; }
 
         /* Navigation */
         nav { 
-            background: #000; padding: 0.8rem 1rem; display: flex; justify-content: space-between; 
+            background: #000; padding: 1rem 1.5rem; display: flex; justify-content: space-between; 
             align-items: center; border-bottom: 2px solid var(--accent-color);
             position: sticky; top: 0; z-index: 1000;
         }
-        .nav-logo { font-weight: 900; color: var(--accent-color); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-        .nav-logo img { width: 25px; border-radius: 5px; }
-        .nav-user-info { display: flex; align-items: center; gap: 10px; }
+        .nav-logo { font-weight: 900; color: var(--accent-color); font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+        .nav-logo img { width: 32px; border-radius: 6px; }
 
-        /* Mobile First Layout (1 Column) */
+        /* Dashboard Layout - Mobile First */
         .dashboard-wrapper { 
+            max-width: 1440px; 
+            margin: 0 auto; 
+            padding: 15px; 
             display: grid; 
             grid-template-columns: 1fr; 
-            gap: 15px; 
-            padding: 15px; 
-            max-width: 1400px; 
-            margin: 0 auto; 
+            gap: 20px; 
         }
 
-        /* Desktop Layout (3 Columns) */
-        @media (min-width: 1024px) {
-            .dashboard-wrapper {
-                grid-template-columns: 320px 1fr 300px;
-                padding: 20px;
-                gap: 20px;
-            }
-            .nav-logo { font-size: 1.4rem; }
-            .nav-logo img { width: 30px; }
+        /* Desktop Layout Override */
+        @media (min-width: 1100px) {
+            .dashboard-wrapper { grid-template-columns: 320px 1fr 300px; padding: 25px; }
         }
         
-        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid #2a2a2a; height: fit-content; }
-        h3 { color: var(--accent-color); font-size: 0.85rem; text-transform: uppercase; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .card { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid #2a2a2a; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h3 { color: var(--accent-color); font-size: 0.8rem; text-transform: uppercase; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 12px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
 
         /* Pitch Items */
         .pitch-row { 
-            background: #222; padding: 15px; border-radius: 10px; margin-bottom: 15px; 
-            border-left: 4px solid var(--accent-color); position: relative;
+            background: #222; padding: 18px; border-radius: 12px; margin-bottom: 18px; 
+            border-left: 5px solid var(--accent-color); position: relative; transition: 0.3s;
         }
         .priority-high { border-left-color: var(--danger); }
-        .priority-tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; float: right; font-weight: bold; }
+        .priority-tag { font-size: 0.65rem; padding: 3px 8px; border-radius: 5px; float: right; font-weight: bold; text-transform: uppercase; }
         .tag-urgent { background: var(--danger); color: white; }
         
-        /* Production Tasks Styling */
-        .prod-tasks { margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
-        .task-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+        /* Production Status Buttons */
+        .prod-tasks { margin-top: 18px; border-top: 1px solid #333; padding-top: 15px; }
+        .task-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
         .task-btn { 
-            font-size: 0.65rem; padding: 8px 4px; border-radius: 4px; border: 1px solid #444; 
-            background: #111; color: #888; cursor: pointer; text-align: center; font-weight: bold;
+            font-size: 0.6rem; padding: 10px 5px; border-radius: 6px; border: 1px solid #444; 
+            background: #111; color: #888; cursor: pointer; text-align: center; font-weight: 800; transition: 0.2s;
         }
-        .task-btn.ongoing { border-color: var(--ongoing); color: var(--ongoing); }
+        .task-btn.ongoing { border-color: var(--ongoing); color: var(--ongoing); background: rgba(51, 181, 229, 0.05); }
         .task-btn.done { border-color: var(--success); color: var(--success); background: rgba(0, 200, 81, 0.1); }
-        .pitch-row.status-done { border-left-color: var(--success) !important; box-shadow: inset 0 0 10px rgba(0, 200, 81, 0.1); }
+        .pitch-row.status-done { border-left-color: var(--success) !important; background: #1b251e; }
 
         /* Inputs & Buttons */
         input, textarea, select { 
-            width: 100%; padding: 12px; margin-bottom: 12px; background: var(--input-bg); 
-            border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; font-size: 1rem;
+            width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); 
+            border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;
         }
+        input:focus, textarea:focus { border-color: var(--accent-color); outline: none; }
+        
         button { 
             background: var(--accent-color); color: #000; border: none; padding: 14px; 
-            border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;
+            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;
         }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 6px 12px; font-size: 0.7rem; margin-top: 10px; }
+        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 6px 12px; font-size: 0.7rem; margin-top: 12px; border-radius: 6px; }
 
-        /* Auth Section Scaling */
-        #auth-card {
-            background: rgba(20,20,20,0.95); padding: 30px; border-radius: 15px; 
-            width: 90%; max-width: 380px; text-align: center; border: 1px solid var(--accent-color);
-        }
+        /* Announcement Board Styling */
+        .announcement-item { border-bottom: 1px solid #2a2a2a; padding: 10px 0; }
+        .announcement-item:last-child { border: none; }
 
-        /* Order adjustment for mobile: Feed comes after Add Pitch but before Quick Tasks */
-        @media (max-width: 1023px) {
+        @media (max-width: 1099px) {
             .sidebar-left { order: 2; }
             .main-feed { order: 1; }
             .sidebar-right { order: 3; }
@@ -106,23 +98,23 @@
 </head>
 <body>
 
-    <div id="auth-section" style="height:100vh; display:flex; align-items:center; justify-content:center; background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://i.imgur.com/7d3ROpd.jpeg') center/cover;">
-        <div id="auth-card">
-            <img src="https://i.imgur.com/7d3ROpd.jpeg" style="width: 80px; height:80px; object-fit: cover; border-radius: 50%; border: 2px solid var(--accent-color); margin-bottom: 15px;">
-            <h2 style="color: var(--accent-color); margin: 0;">PROD-HUB</h2>
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Team Collaboration Suite</p>
+    <div id="auth-section" style="height:100vh; display:flex; align-items:center; justify-content:center; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://i.imgur.com/7d3ROpd.jpeg') center/cover;">
+        <div style="background: rgba(20,20,20,0.95); padding: 40px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; border: 1px solid var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <img src="https://i.imgur.com/7d3ROpd.jpeg" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); margin-bottom: 20px;">
+            <h2 style="color: var(--accent-color); margin: 0; letter-spacing: 2px;">PROD-HUB</h2>
+            <p style="font-size: 0.85rem; color: #888; margin-bottom: 25px;">Premium Production Workspace</p>
             
             <select id="user-role" style="border: 1px solid var(--accent-color);">
-                <option value="Producer">Role: Producer</option>
-                <option value="Editor">Role: Video Editor</option>
-                <option value="Writer">Role: Script Writer</option>
-                <option value="Camera">Role: Camera/DP</option>
+                <option value="Producer">👤 Role: Producer</option>
+                <option value="Editor">🎞️ Role: Video Editor</option>
+                <option value="Writer">✍️ Role: Script Writer</option>
+                <option value="Camera">🎥 Role: Camera/DP</option>
             </select>
 
             <input type="email" id="email" placeholder="Email Address">
             <input type="password" id="password" placeholder="Password">
-            <button onclick="handleLogin()">ENTER HUB</button>
-            <button onclick="handleSignup()" style="background:transparent; color:var(--accent-color); margin-top:10px; border:1px solid var(--accent-color);">REGISTER</button>
+            <button onclick="handleLogin()">ENTER WORKSPACE</button>
+            <button onclick="handleSignup()" style="background:transparent; color:var(--accent-color); margin-top:12px; border:1px solid var(--accent-color);">CREATE ACCOUNT</button>
         </div>
     </div>
 
@@ -131,55 +123,63 @@
             <div class="nav-logo">
                 <img src="https://i.imgur.com/7d3ROpd.jpeg"> PROD-HUB
             </div>
-            <div class="nav-user-info">
-                <div style="text-align: right; display: flex; flex-direction: column; justify-content: center;">
-                    <span id="role-tag" style="background:var(--accent-color); color:black; font-size:0.5rem; padding:1px 4px; border-radius:3px; font-weight:bold; width: fit-content; align-self: flex-end;"></span>
-                    <span id="user-display" style="font-size:0.7rem; color:var(--text-dim); font-weight: bold;"></span>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="text-align: right; line-height: 1;">
+                    <span id="role-tag" style="background:var(--accent-color); color:black; font-size:0.55rem; padding:2px 6px; border-radius:4px; font-weight:900; display: inline-block; margin-bottom: 4px;"></span><br>
+                    <span id="user-display" style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;"></span>
                 </div>
-                <button onclick="handleLogout()" style="width:auto; padding:6px 10px; font-size:0.7rem;">LOGOUT</button>
+                <button onclick="handleLogout()" style="width:auto; padding:8px 16px; font-size:0.7rem; background: #333; color: white;">LOGOUT</button>
             </div>
         </nav>
 
         <div class="dashboard-wrapper">
             <div class="sidebar-left">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3>📢 Announcements</h3>
+                    <div id="announcement-board" style="font-size: 0.85rem; color: #ccc;">
+                        <div class="announcement-item">🚀 New project "Summer Series" starts Monday.</div>
+                        <div class="announcement-item">⚙️ Server maintenance at 12:00 AM.</div>
+                    </div>
+                </div>
+
                 <div class="card">
-                    <h3>➕ New Story Pitch</h3>
-                    <label style="font-size:0.7rem; color:#888;">Priority Level</label>
+                    <h3>✨ New Pitch</h3>
+                    <label style="font-size:0.7rem; color:#888; font-weight: bold; margin-bottom: 5px; display: block;">PRIORITY</label>
                     <select id="pPriority">
-                        <option value="Normal">Normal Priority</option>
-                        <option value="Urgent">🔥 Urgent</option>
-                        <option value="Backlog">📁 Backlog</option>
+                        <option value="Normal">🟢 Normal</option>
+                        <option value="Urgent">🔴 Urgent</option>
+                        <option value="Backlog">📂 Backlog</option>
                     </select>
-                    <label style="font-size:0.7rem; color:#888;">Shoot Date</label>
                     <input type="date" id="pDate">
-                    <input type="text" id="pLoc" placeholder="Location">
-                    <input type="text" id="pCam" placeholder="Cam / DP Assigned">
-                    <textarea id="pAbout" rows="4" placeholder="Story Concept..."></textarea>
-                    <button onclick="addPitch()">SUBMIT TO BOARD</button>
+                    <input type="text" id="pLoc" placeholder="📍 Location">
+                    <input type="text" id="pCam" placeholder="🎥 Camera / DP">
+                    <textarea id="pAbout" rows="4" placeholder="Describe the story concept..."></textarea>
+                    <button onclick="addPitch()">POST TO HUB</button>
                 </div>
             </div>
 
             <div class="main-feed">
                 <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <h3 style="border:none; margin:0;">📺 Live Production Board</h3>
-                        <div id="clock" style="font-size:0.8rem; font-weight:bold; color:var(--accent-color);"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="border:none; margin:0;">📺 Production Board</h3>
+                        <div id="clock" style="font-size:0.9rem; font-weight:900; color:var(--accent-color); background: #000; padding: 5px 12px; border-radius: 6px; border: 1px solid #333;"></div>
                     </div>
-                    <div id="pitch-list">Fetching updates...</div>
+                    <div id="pitch-list">Loading feed...</div>
                 </div>
             </div>
 
             <div class="sidebar-right">
-                <div class="card">
-                    <h3>⚡ Quick Tasks</h3>
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3>✅ My Tasks</h3>
                     <div id="task-list"></div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
+                    <div style="display:flex; gap:8px; margin-top:15px;">
                         <input type="text" id="newTask" placeholder="Add task..." style="margin:0;">
                         <button onclick="addTask()" style="width:50px; padding: 0;">+</button>
                     </div>
                 </div>
-                <div class="card" id="greeting-card" style="background: linear-gradient(to right, #1a1a1a, #252525);">
-                    <h4 id="greeting-msg" style="margin:0; font-size:0.9rem;">Welcome back!</h4>
+                <div class="card" id="greeting-card" style="background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border-left: 4px solid var(--accent-color);">
+                    <h4 id="greeting-msg" style="margin:0; font-size:0.95rem; color: var(--accent-color);">Welcome back!</h4>
+                    <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Systems are operational.</p>
                 </div>
             </div>
         </div>
@@ -203,7 +203,7 @@
         // Real-time Clock Logic
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString();
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
         }, 1000);
 
         // Greeting Logic
@@ -217,7 +217,6 @@
                 document.getElementById('dashboard-section').classList.remove('hidden');
                 document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
                 
-                // Fetch Role
                 const userDoc = await db.collection("users").doc(user.uid).get();
                 if(userDoc.exists) {
                     document.getElementById('role-tag').innerText = userDoc.data().role;
@@ -230,8 +229,6 @@
                 document.getElementById('dashboard-section').classList.add('hidden');
             }
         });
-
-        // --- CORE LOGIC FUNCTIONS ---
 
         async function handleLogin() {
             const e = document.getElementById('email').value;
@@ -260,22 +257,21 @@
                     const isOwner = auth.currentUser.email === p.author;
                     const priorityClass = p.priority === 'Urgent' ? 'priority-high' : '';
                     const tagClass = p.priority === 'Urgent' ? 'tag-urgent' : '';
-                    
                     const isStoryDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done';
                     const storyDoneClass = isStoryDone ? 'status-done' : '';
 
                     return `
                         <div class="pitch-row ${priorityClass} ${storyDoneClass}">
                             <span class="priority-tag ${tagClass}">${p.priority || 'Normal'}</span>
-                            <div style="font-weight:bold; color:var(--accent-color); margin-bottom:10px;">📅 ${p.date || 'TBD'}</div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; font-size:0.8rem; color:#aaa; margin-bottom:10px;">
+                            <div style="font-weight:bold; color:var(--accent-color); margin-bottom:12px; font-size: 0.9rem;">📅 ${p.date || 'TBD'}</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; font-size:0.75rem; color:#aaa; margin-bottom:12px; gap: 10px;">
                                 <span>📍 ${p.location}</span>
                                 <span>🎥 ${p.cameraman}</span>
                             </div>
-                            <div style="color:#eee; background:#2a2a2a; padding:10px; border-radius:5px; font-size:0.9rem;">${p.about}</div>
+                            <div style="color:#eee; background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; font-size:0.9rem; border: 1px solid #333;">${p.about}</div>
                             
                             <div class="prod-tasks">
-                                <span style="font-size:0.65rem; color:var(--accent-color); font-weight:bold;">PRODUCTION STATUS:</span>
+                                <span style="font-size:0.6rem; color:var(--accent-color); font-weight:900; letter-spacing: 0.5px;">PROGRESS TRACKER</span>
                                 <div class="task-grid">
                                     <div class="task-btn ${p.tasks?.script || ''}" onclick="updateProdTask('${doc.id}', 'script', '${p.tasks?.script || ''}')">📝 SCRIPT</div>
                                     <div class="task-btn ${p.tasks?.shoot || ''}" onclick="updateProdTask('${doc.id}', 'shoot', '${p.tasks?.shoot || ''}')">🎬 SHOOT</div>
@@ -284,7 +280,7 @@
                             </div>
 
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.6rem; color:#555; margin-top:8px;">Posted by: ${p.author}</span>
+                                <span style="font-size:0.6rem; color:#555; margin-top:12px;">Authored by: ${p.author}</span>
                                 ${isOwner ? `<button class="btn-delete" onclick="deletePitch('${doc.id}')">Delete</button>` : ''}
                             </div>
                         </div>
@@ -298,7 +294,6 @@
             if (currentStatus === "") nextStatus = "ongoing";
             else if (currentStatus === "ongoing") nextStatus = "done";
             else nextStatus = "";
-
             const updateObj = {};
             updateObj[`tasks.${taskType}`] = nextStatus;
             await db.collection("pitches").doc(docId).update(updateObj);
@@ -307,7 +302,6 @@
         async function addPitch() {
             const about = document.getElementById('pAbout').value;
             if(!about) return alert("Please enter story details.");
-
             await db.collection("pitches").add({
                 priority: document.getElementById('pPriority').value,
                 date: document.getElementById('pDate').value,
@@ -316,7 +310,7 @@
                 about: about,
                 author: auth.currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                tasks: { script: "", shoot: "", edit: "" } 
+                tasks: { script: "", shoot: "", edit: "" }
             });
             ['pAbout', 'pLoc', 'pCam', 'pDate'].forEach(id => document.getElementById(id).value = '');
         }
@@ -333,9 +327,9 @@
                 list.innerHTML = snapshot.docs.map(doc => {
                     const t = doc.data();
                     return `
-                        <div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:8px; margin-bottom:5px; border-radius:5px; font-size:0.8rem;">
-                            <span style="${t.done ? 'text-decoration:line-through; opacity:0.5' : ''}">${t.text}</span>
-                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${doc.id}', ${t.done})" style="width:auto; margin:0;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.8rem; border: 1px solid #333;">
+                            <span style="${t.done ? 'text-decoration:line-through; opacity:0.4' : ''}">${t.text}</span>
+                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${doc.id}', ${t.done})" style="width:auto; margin:0; cursor:pointer;">
                         </div>
                     `;
                 }).join('');
