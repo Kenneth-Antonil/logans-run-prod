@@ -3,73 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROD-HUB | Professional Production Management</title>
+    <title>PROD-HUB | Production Management</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         :root {
-            --primary-yellow: #ffcc00;
-            --deep-yellow: #e6b800;
-            --bg-dark: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #e0e0e0;
+            --accent-color: #ffb400; /* Yellow from your image */
+            --bg-dark: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --input-bg: #252525;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
         }
 
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; padding: 0; }
-        .hidden { display: none; }
-        
-        nav { background: #000; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-yellow); }
-        .nav-logo { font-weight: 800; letter-spacing: 2px; color: var(--primary-yellow); font-size: 1.2rem; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            margin: 0; 
+            line-height: 1.6;
+        }
 
-        .auth-container { max-width: 400px; margin: 100px auto; background: var(--card-bg); padding: 40px; border-radius: 12px; text-align: center; border-top: 5px solid var(--primary-yellow); }
-        .dashboard-wrapper { max-width: 1200px; margin: 2rem auto; padding: 0 20px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
-        
-        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; }
-        .card h3 { margin-top: 0; color: var(--primary-yellow); border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .hidden { display: none !important; }
 
+        /* Login Section Styling */
+        #auth-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://i.imgur.com/7d3ROpd.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .auth-container {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 180, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-logo {
+            width: 80px;
+            height: 80px;
+            background: url('https://i.imgur.com/7d3ROpd.jpeg');
+            background-size: cover;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 2px solid var(--accent-color);
+        }
+
+        /* Nav Styling */
+        nav { 
+            background: #000; 
+            padding: 0.8rem 2rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand img { width: 35px; height: 35px; border-radius: 4px; }
+        .nav-logo { font-weight: 900; letter-spacing: 1px; color: var(--accent-color); font-size: 1.4rem; }
+
+        /* Main Dashboard */
+        .dashboard-wrapper { 
+            max-width: 1200px; 
+            margin: 2rem auto; 
+            padding: 0 20px; 
+            display: grid; 
+            grid-template-columns: 1.8fr 1fr; 
+            gap: 30px; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        h3 { 
+            margin-top: 0; 
+            color: var(--accent-color); 
+            font-size: 1.1rem; 
+            text-transform: uppercase; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Form Inputs */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 5px; text-transform: uppercase; }
+        
         input, textarea { 
-            width: 100%; padding: 10px; margin: 5px 0 15px 0; background: #2a2a2a; border: 1px solid #444; 
-            color: white; border-radius: 6px; box-sizing: border-box; 
+            width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid #333; 
+            color: white; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;
+            transition: 0.3s;
         }
-        input:focus, textarea:focus { border-color: var(--primary-yellow); outline: none; }
-        label { font-size: 0.8rem; color: #aaa; }
+        input:focus, textarea:focus { border-color: var(--accent-color); outline: none; background: #2d2d2d; }
 
+        /* Buttons */
         button { 
-            background: var(--primary-yellow); color: #000; border: none; padding: 12px 20px; 
-            border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%;
+            background: var(--accent-color); color: #000; border: none; padding: 14px 20px; 
+            border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.3s; width: 100%;
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        button:hover { background: var(--deep-yellow); transform: translateY(-1px); }
-        .btn-outline { background: transparent; border: 1px solid var(--primary-yellow); color: var(--primary-yellow); margin-top: 10px; }
-        .btn-small { width: auto; padding: 6px 12px; font-size: 0.7rem; margin: 0; }
+        button:hover { background: #e6a200; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 180, 0, 0.3); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--accent-color); color: var(--accent-color); margin-top: 10px; }
+        .btn-outline:hover { background: rgba(255, 180, 0, 0.1); color: white; }
+        .btn-small { width: auto; padding: 6px 15px; font-size: 0.75rem; }
 
-        /* Pitches Styling */
-        .pitch-row { padding: 15px; background: #252525; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid var(--primary-yellow); }
-        .pitch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: #bbb; margin: 5px 0; }
-        .pitch-about { border-top: 1px solid #333; padding-top: 8px; margin-top: 5px; color: #eee; font-size: 0.9rem; }
+        /* Pitches Style */
+        .pitch-row { 
+            padding: 20px; 
+            background: #222; 
+            margin-bottom: 15px; 
+            border-radius: 10px; 
+            border-left: 5px solid var(--accent-color);
+            transition: 0.2s;
+        }
+        .pitch-row:hover { background: #282828; }
+        .pitch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .pitch-date { color: var(--accent-color); font-weight: bold; font-size: 0.9rem; }
+        .pitch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.85rem; color: #aaa; }
+        .pitch-about { margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; font-size: 1rem; color: #ddd; }
+        .pitch-meta { font-size: 0.7rem; color: #555; margin-top: 10px; font-style: italic; }
 
-        /* Checklist Styling */
-        .task-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #252525; margin-bottom: 8px; border-radius: 6px; }
-        .completed { opacity: 0.5; text-decoration: line-through; }
+        /* Checklist Style */
+        .task-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 15px; background: #222; margin-bottom: 10px; border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .completed { opacity: 0.4; background: #1a1a1a; }
+        .completed span { text-decoration: line-through; }
 
-        @media (max-width: 768px) { .dashboard-wrapper { grid-template-columns: 1fr; } }
+        @media (max-width: 850px) { 
+            .dashboard-wrapper { grid-template-columns: 1fr; } 
+            .auth-container { margin: 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="auth-section" class="auth-container">
-        <div class="nav-logo" style="margin-bottom: 20px;">PRODUCTION HUB</div>
-        <input type="email" id="email" placeholder="Work Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="handleLogin()">LOG IN</button>
-        <button onclick="handleSignup()" class="btn-outline">REGISTER TEAM MEMBER</button>
+    <div id="auth-section">
+        <div class="auth-container">
+            <div class="auth-logo"></div>
+            <h2 style="margin-bottom: 5px; color: var(--accent-color);">PROD-HUB</h2>
+            <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 30px;">Professional Production Management</p>
+            
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Work Email">
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            
+            <button onclick="handleLogin()">Sign In</button>
+            <button onclick="handleSignup()" class="btn-outline">Register Team Member</button>
+        </div>
     </div>
 
     <div id="dashboard-section" class="hidden">
         <nav>
-            <div class="nav-logo">PROD-HUB</div>
-            <div>
-                <span id="user-display" style="margin-right: 15px; font-size: 0.8rem; opacity: 0.7;"></span>
+            <div class="brand">
+                <img src="https://i.imgur.com/7d3ROpd.jpeg" alt="Logo">
+                <div class="nav-logo">PROD-HUB</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span id="user-display" style="font-size: 0.8rem; color: var(--text-dim);"></span>
                 <button onclick="handleLogout()" class="btn-small btn-outline">LOGOUT</button>
             </div>
         </nav>
@@ -77,35 +194,61 @@
         <div class="dashboard-wrapper">
             <div class="main-content">
                 <div class="card">
-                    <h3>💡 Global Team Pitches (Real-time)</h3>
-                    <div id="pitch-list">Loading team board...</div>
-                    
-                    <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-                    
-                    <h3>Submit New Story Pitch</h3>
-                    <label>Shooting Date</label><input type="date" id="pDate">
-                    <label>Location</label><input type="text" id="pLoc" placeholder="e.g. Studio B / Field Location">
-                    <label>Cameraman</label><input type="text" id="pCam" placeholder="Assigned Personnel">
-                    <label>About the Story</label><textarea id="pAbout" rows="3" placeholder="Explain the pitch details..."></textarea>
-                    <button onclick="addPitch()">POST TO TEAM BOARD</button>
+                    <h3>📢 Team Story Pitches</h3>
+                    <div id="pitch-list">
+                        <p style="color:#666; font-size: 0.9rem;">Syncing with production board...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📝 Submit New Pitch</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="input-group">
+                            <label>Shoot Date</label>
+                            <input type="date" id="pDate">
+                        </div>
+                        <div class="input-group">
+                            <label>Location</label>
+                            <input type="text" id="pLoc" placeholder="e.g., Studio / Manila">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Personnel / Cameraman</label>
+                        <input type="text" id="pCam" placeholder="Assigned Team Member">
+                    </div>
+                    <div class="input-group">
+                        <label>Production Details</label>
+                        <textarea id="pAbout" rows="4" placeholder="Describe the story, requirements, or objectives..."></textarea>
+                    </div>
+                    <button onclick="addPitch()">Post to Global Board</button>
                 </div>
             </div>
 
             <div class="sidebar">
                 <div class="card">
-                    <h3>🎬 My Private Checklist</h3>
+                    <h3>✅ My Action Items</h3>
                     <div id="task-list"></div>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <input type="text" id="newTask" placeholder="Add task..." style="margin:0;">
-                        <button onclick="addTask()" style="width: 80px; margin:0;">ADD</button>
+                    <div style="margin-top: 20px; border-top: 1px solid #333; pt-20">
+                        <label style="margin-top: 15px;">Add Quick Task</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="newTask" placeholder="What needs to be done?" style="margin:0;">
+                            <button onclick="addTask()" style="width: 70px; margin:0; padding: 0;">ADD</button>
+                        </div>
                     </div>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(45deg, #1a1a1a, #000);">
+                    <p style="font-size: 0.75rem; color: var(--text-dim); margin: 0;">
+                        <b>System Status:</b> Live <br>
+                        <b>Project:</b> Production Hub v2.0
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Your Firebase Configuration
+        // Firebase Configuration (Gamit ang existing mo)
         const firebaseConfig = {
             apiKey: "AIzaSyCWyMPS1vabyK_uGAWzmmeW9iuL7ksEUBE",
             authDomain: "prod-hub-d43c4.firebaseapp.com",
@@ -116,61 +259,68 @@
             measurementId: "G-0E941P3S8J"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Listen for Auth State
+        // Auth State Listener
         auth.onAuthStateChanged(user => {
+            const authSec = document.getElementById('auth-section');
+            const dashSec = document.getElementById('dashboard-section');
+            
             if (user) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('dashboard-section').classList.remove('hidden');
+                authSec.classList.add('hidden');
+                dashSec.classList.remove('hidden');
                 document.getElementById('user-display').innerText = user.email;
                 loadGlobalPitches();
                 loadPersonalTasks(user.uid);
             } else {
-                document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('dashboard-section').classList.add('hidden');
+                authSec.classList.remove('hidden');
+                dashSec.classList.add('hidden');
             }
         });
 
-        // --- AUTH FUNCTIONS ---
+        // --- AUTH LOGIC ---
         async function handleSignup() {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
+            if(!e || !p) return alert("Fill in all fields");
             try { await auth.createUserWithEmailAndPassword(e, p); } 
-            catch(err) { alert("Signup Error: " + err.message); }
+            catch(err) { alert(err.message); }
         }
 
         async function handleLogin() {
             const e = document.getElementById('email').value;
             const p = document.getElementById('password').value;
+            if(!e || !p) return alert("Fill in all fields");
             try { await auth.signInWithEmailAndPassword(e, p); } 
-            catch(err) { alert("Login Error: " + err.message); }
+            catch(err) { alert(err.message); }
         }
 
         function handleLogout() { auth.signOut(); }
 
-        // --- GLOBAL PITCHES (Visible to everyone) ---
+        // --- PITCHES LOGIC ---
         function loadGlobalPitches() {
             db.collection("pitches").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 const list = document.getElementById('pitch-list');
                 if (snapshot.empty) {
-                    list.innerHTML = "<p style='font-size:0.8rem; color:#666;'>No pitches submitted yet.</p>";
+                    list.innerHTML = "<p style='font-size:0.85rem; color:#555;'>No active pitches on the board.</p>";
                     return;
                 }
                 list.innerHTML = snapshot.docs.map(doc => {
                     const p = doc.data();
                     return `
                         <div class="pitch-row">
-                            <div style="color:var(--primary-yellow); font-weight:bold; font-size:1rem;">📅 ${p.date || 'TBD'}</div>
+                            <div class="pitch-header">
+                                <span class="pitch-date">📅 ${p.date || 'TBD'}</span>
+                                <span style="font-size: 0.7rem; background: #333; padding: 2px 8px; border-radius: 10px;">LIVE</span>
+                            </div>
                             <div class="pitch-grid">
                                 <span>📍 <b>Loc:</b> ${p.location || 'N/A'}</span>
                                 <span>🎥 <b>Cam:</b> ${p.cameraman || 'N/A'}</span>
                             </div>
-                            <div class="pitch-about">${p.about || 'No description.'}</div>
-                            <div style="font-size:0.6rem; color:#555; margin-top:5px;">Submitted by: ${p.author}</div>
+                            <div class="pitch-about">${p.about}</div>
+                            <div class="pitch-meta">By: ${p.author}</div>
                         </div>
                     `;
                 }).join('');
@@ -184,26 +334,22 @@
             const cam = document.getElementById('pCam').value;
             const about = document.getElementById('pAbout').value;
 
-            if(!about) { alert("Please provide details about the story."); return; }
+            if(!about) return alert("Please add story details.");
 
             try {
                 await db.collection("pitches").add({
-                    date: date,
-                    location: loc,
-                    cameraman: cam,
-                    about: about,
+                    date: date, location: loc, cameraman: cam, about: about,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     author: user.email
                 });
-                // Clear fields
                 document.getElementById('pDate').value = '';
                 document.getElementById('pLoc').value = '';
                 document.getElementById('pCam').value = '';
                 document.getElementById('pAbout').value = '';
-            } catch(err) { alert("Error saving pitch: " + err.message); }
+            } catch(err) { alert("Error: " + err.message); }
         }
 
-        // --- PERSONAL CHECKLIST (Private per user) ---
+        // --- TASKS LOGIC ---
         function loadPersonalTasks(uid) {
             db.collection("tasks").where("uid", "==", uid).orderBy("createdAt", "asc").onSnapshot(snapshot => {
                 const list = document.getElementById('task-list');
@@ -211,8 +357,10 @@
                     const t = doc.data();
                     return `
                         <div class="task-row ${t.done ? 'completed' : ''}">
-                            <span style="font-size:0.9rem;">${t.text}</span>
-                            <button class="btn-small" onclick="toggleTask('${doc.id}', ${t.done})">${t.done ? 'UNDO' : 'DONE'}</button>
+                            <span>${t.text}</span>
+                            <button class="btn-small ${t.done ? 'btn-outline' : ''}" onclick="toggleTask('${doc.id}', ${t.done})">
+                                ${t.done ? 'UNDO' : 'DONE'}
+                            </button>
                         </div>
                     `;
                 }).join('');
@@ -225,12 +373,11 @@
             try {
                 await db.collection("tasks").add({
                     uid: auth.currentUser.uid,
-                    text: txt,
-                    done: false,
+                    text: txt, done: false,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 document.getElementById('newTask').value = '';
-            } catch(err) { alert("Error: " + err.message); }
+            } catch(err) { alert(err.message); }
         }
 
         async function toggleTask(id, currentStatus) {
