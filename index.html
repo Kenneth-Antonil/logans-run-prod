@@ -2,90 +2,630 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Production Team Hub</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROD-HUB PRO | Production Management</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: sans-serif; background: #1a1a1b; color: white; padding: 40px; }
-        .hidden { display: none; }
-        .auth-container, .dashboard { max-width: 400px; margin: auto; background: #2d2e30; padding: 20px; border-radius: 8px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #8ab4f8; border: none; cursor: pointer; font-weight: bold; }
-        .task-item { border-bottom: 1px solid #444; padding: 10px 0; display: flex; justify-content: space-between; }
+        /* EXISTING STYLES MANTAINED */
+        :root {
+            --accent-color: #ffb400;
+            --bg-dark: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --input-bg: #252525;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --danger: #ff4444;
+            --success: #00c851;
+            --ongoing: #33b5e5;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; line-height: 1.6; }
+        .hidden { display: none !important; }
+
+        nav { 
+            background: #000; padding: 1rem 1.5rem; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 2px solid var(--accent-color);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .nav-logo { font-weight: 900; color: var(--accent-color); font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+        .nav-logo img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent-color); object-fit: cover; }
+
+        .dashboard-wrapper { 
+            max-width: 1440px; 
+            margin: 0 auto; 
+            padding: 15px; 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 20px; 
+        }
+
+        @media (min-width: 1100px) {
+            .dashboard-wrapper { grid-template-columns: 320px 1fr 300px; padding: 25px; }
+        }
+        
+        .card { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid #2a2a2a; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h3 { color: var(--accent-color); font-size: 0.8rem; text-transform: uppercase; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 12px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+
+        .pitch-row { 
+            background: #222; padding: 18px; border-radius: 12px; margin-bottom: 18px; 
+            border-left: 5px solid var(--accent-color); position: relative; transition: 0.3s;
+        }
+        .priority-high { border-left-color: var(--danger); }
+        .priority-tag { font-size: 0.65rem; padding: 3px 8px; border-radius: 5px; float: right; font-weight: bold; text-transform: uppercase; }
+        .tag-urgent { background: var(--danger); color: white; }
+        
+        .prod-tasks { margin-top: 18px; border-top: 1px solid #333; padding-top: 15px; }
+        .task-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        @media (min-width: 600px) { .task-grid { grid-template-columns: repeat(4, 1fr); } }
+        
+        .task-btn { 
+            font-size: 0.6rem; padding: 10px 5px; border-radius: 6px; border: 1px solid #444; 
+            background: #111; color: #888; cursor: pointer; text-align: center; font-weight: 800; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        }
+        .task-btn.ongoing { border-color: var(--ongoing); color: var(--ongoing); background: rgba(51, 181, 229, 0.05); }
+        .task-btn.done { border-color: var(--success); color: var(--success); background: rgba(0, 200, 81, 0.1); }
+        .task-btn.pending { border-color: var(--accent-color); color: var(--accent-color); }
+        
+        .pitch-row.status-done { border-left-color: var(--success) !important; background: #1b251e; }
+
+        input, textarea, select { 
+            width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); 
+            border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;
+        }
+        input:focus, textarea:focus { border-color: var(--accent-color); outline: none; }
+        
+        button { 
+            background: var(--accent-color); color: #000; border: none; padding: 14px; 
+            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;
+        }
+        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 6px 12px; font-size: 0.7rem; margin-top: 12px; border-radius: 6px; }
+
+        .announcement-item { border-bottom: 1px solid #2a2a2a; padding: 10px 0; display: flex; align-items: flex-start; gap: 10px; }
+        .announcement-item:last-child { border: none; }
+
+        .media-link-btn {
+            display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+            padding: 6px 12px; background: #333; border-radius: 6px; color: var(--accent-color);
+            text-decoration: none; font-size: 0.75rem; border: 1px solid #444;
+        }
+
+        .stat-badge { background: #000; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; flex: 1; }
+        .stat-val { display: block; font-size: 1.2rem; font-weight: 900; color: var(--accent-color); }
+        .stat-label { font-size: 0.55rem; color: #888; text-transform: uppercase; }
+
+        @media (max-width: 1099px) {
+            .sidebar-left { order: 2; }
+            .main-feed { order: 1; }
+            .sidebar-right { order: 3; }
+        }
+        .icon-sm { width: 14px; height: 14px; }
+
+        .hub-tabs { display: flex; gap: 5px; margin-bottom: 15px; background: #000; padding: 5px; border-radius: 10px; border: 1px solid #222; }
+        .hub-tab { flex: 1; padding: 10px; font-size: 0.65rem; font-weight: 800; text-align: center; cursor: pointer; border-radius: 6px; color: #555; transition: 0.3s; text-transform: uppercase; }
+        .hub-tab.active { background: var(--accent-color); color: #000; }
+        .btn-approve { background: var(--success); color: white; width: auto; padding: 6px 15px; font-size: 0.7rem; margin-top: 12px; margin-left: 5px; }
+        .airing-tag { background: #fff; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* ADDED STYLES FOR ASSIGNMENT */
+        .assignment-box { font-size: 0.65rem; color: #777; margin-top: 5px; display: flex; gap: 10px; }
+        .assignment-box b { color: var(--accent-color); }
+
+        /* NEW IMPROVED STYLES */
+        .status-text { font-size: 0.5rem; text-transform: uppercase; margin-top: 2px; opacity: 0.8; }
+        .task-select { background: #000; color: white; border: 1px solid #444; font-size: 0.6rem; padding: 2px; border-radius: 4px; margin-top: 5px; width: 100%; cursor: pointer; }
+        .btn-date-edit { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 2px 5px; font-size: 0.6rem; width: auto; margin-left: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-section" class="auth-container">
-        <h2>Team Login</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="signIn()">Login</button>
-        <button onclick="signUp()" style="margin-top:5px; background: #444; color: white;">Sign Up</button>
+    <div id="auth-section" style="height:100vh; display:flex; align-items:center; justify-content:center; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://i.imgur.com/7d3ROpd.jpeg') center/cover;">
+        <div style="background: rgba(20,20,20,0.95); padding: 40px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; border: 1px solid var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <img src="https://i.imgur.com/7d3ROpd.jpeg" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); margin-bottom: 20px;">
+            <h2 style="color: var(--accent-color); margin: 0; letter-spacing: 2px;">PROD-HUB</h2>
+            <p style="font-size: 0.85rem; color: #888; margin-bottom: 25px;">Premium Production Workspace</p>
+            
+            <label style="color:var(--accent-color); font-size: 0.7rem; display: block; text-align: left; margin-bottom: 5px; font-weight: bold;">CHOOSE YOUR ROLE:</label>
+            <select id="user-role" style="border: 1px solid var(--accent-color);">
+                <option value="Producer">Producer</option>
+                <option value="Associate Producer">Associate Producer</option>
+                <option value="Host">Program Host</option>
+                <option value="Editor">Video Editor</option>
+                <option value="Writer">Script Writer</option>
+                <option value="Camera">Camera/DP</option>
+            </select>
+
+            <button onclick="handleGoogleAuth()" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" style="width:20px; background:white; border-radius:50%; padding:2px;">
+                CONTINUE WITH GOOGLE
+            </button>
+            <p style="font-size: 0.65rem; color: #555; margin-top: 15px;">Access is restricted to authorized personnel only.</p>
+        </div>
     </div>
 
-    <div id="dashboard-section" class="dashboard hidden">
-        <h2>Welcome, <span id="user-email"></span></h2>
-        <button onclick="signOut()" style="background:#f28b82">Logout</button>
-        
-        <hr>
-        <h3>Your Checklist</h3>
-        <div id="task-list"></div>
-        <input type="text" id="newTask" placeholder="Add new AV script or task...">
-        <button onclick="addTask()">Add Task</button>
+    <div id="dashboard-section" class="hidden">
+        <nav>
+            <div class="nav-logo">
+                <img src="https://i.imgur.com/7d3ROpd.jpeg"> </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="text-align: right; line-height: 1;">
+                    <span id="role-tag" style="background:var(--accent-color); color:black; font-size:0.55rem; padding:2px 6px; border-radius:4px; font-weight:900; display: inline-block; margin-bottom: 4px;"></span><br>
+                    <span id="user-display" style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;"></span>
+                </div>
+                <button onclick="handleLogout()" style="width:auto; padding:8px 16px; font-size:0.7rem; background: #333; color: white;">LOGOUT</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-wrapper">
+            <div class="sidebar-left">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i data-lucide="activity" class="icon-sm"></i> Project Pulse</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="stat-badge">
+                            <span class="stat-val" id="total-pitches-count">0</span>
+                            <span class="stat-label">Total Pitches</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-val" id="completed-pitches-count">0</span>
+                            <span class="stat-label">Wrapped</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i data-lucide="megaphone" class="icon-sm"></i> Announcements</h3>
+                    <div id="announcement-board" style="font-size: 0.85rem; color: #ccc; max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
+                        </div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="newAnnouncement" placeholder="Broadcast message..." style="margin:0; font-size: 0.75rem;">
+                        <button onclick="postAnnouncement()" style="width: 45px; padding:0;"><i data-lucide="send" style="width:16px;"></i></button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i data-lucide="plus-circle" class="icon-sm"></i> New Pitch</h3>
+                    <label style="font-size:0.7rem; color:#888; font-weight: bold; margin-bottom: 5px; display: block;">PRIORITY</label>
+                    <select id="pPriority">
+                        <option value="Normal">Normal</option>
+                        <option value="Urgent">Urgent</option>
+                        <option value="Backlog">Backlog</option>
+                    </select>
+                    <input type="date" id="pDate">
+                    <input type="text" id="pLoc" placeholder="Location">
+                    <input type="text" id="pCam" placeholder="Assign Camera/DP Email">
+                    <input type="text" id="pEditor" placeholder="Assign Editor Email">
+                    <input type="url" id="pMedia" placeholder="Reference Link">
+                    <textarea id="pAbout" rows="4" placeholder="Describe the story concept..."></textarea>
+                    <button onclick="addPitch()">POST TO HUB</button>
+                </div>
+            </div>
+
+            <div class="main-feed">
+                <div class="hub-tabs">
+                    <div class="hub-tab active" id="tab-approval" onclick="switchTab('approval')">For Approval</div>
+                    <div class="hub-tab" id="tab-production" onclick="switchTab('production')">For Production</div>
+                    <div class="hub-tab" id="tab-airing" onclick="switchTab('airing')">For Airing</div>
+                </div>
+
+                <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                    <input type="text" id="feedSearch" placeholder="🔍 Search production board..." style="margin:0; background: #111;" onkeyup="filterFeed()">
+                </div>
+
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="border:none; margin:0;"><i data-lucide="clapperboard" class="icon-sm"></i> <span id="board-title">Approval Board</span></h3>
+                        <div id="clock" style="font-size:0.9rem; font-weight:900; color:var(--accent-color); background: #000; padding: 5px 12px; border-radius: 6px; border: 1px solid #333;"></div>
+                    </div>
+                    <div id="pitch-list">Loading feed...</div>
+                </div>
+            </div>
+
+            <div class="sidebar-right">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i data-lucide="user-cog" class="icon-sm"></i> Profile Settings</h3>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="updateNameInput" placeholder="Change Name..." style="margin:0; font-size: 0.75rem;">
+                        <button onclick="updateProfileName()" style="width:60px; padding: 0; font-size: 0.6rem;">SAVE</button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i data-lucide="check-square" class="icon-sm"></i> My Tasks</h3>
+                    <div id="task-list"></div>
+                    <div style="display:flex; gap:8px; margin-top:15px;">
+                        <input type="text" id="newTask" placeholder="Add task..." style="margin:0;">
+                        <button onclick="addTask()" style="width:50px; padding: 0;">+</button>
+                    </div>
+                </div>
+                <div class="card" id="greeting-card" style="background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border-left: 4px solid var(--accent-color);">
+                    <h4 id="greeting-msg" style="margin:0; font-size:0.95rem; color: var(--accent-color);">Welcome back!</h4>
+                    <p id="role-greeting" style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Systems are operational.</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
+                    <div style="font-size: 0.65rem; color: var(--success); display: flex; align-items: center; gap: 5px;">
+                        <i data-lucide="sun" class="icon-sm"></i> Production Weather: Clear Sky
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-<script>
-    // Initialize Supabase (Replace with your keys!)
-    const _supabase = supabase.createClient('https://mkteilecrgeneahnrntz.supabase.co', 'sb_publishable_rpW0yklH9QEdz7c41e2gTw_k1v2DTdO');
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWyMPS1vabyK_uGAWzmmeW9iuL7ksEUBE",
+            authDomain: "prod-hub-d43c4.firebaseapp.com",
+            projectId: "prod-hub-d43c4",
+            storageBucket: "prod-hub-d43c4.firebasestorage.app",
+            messagingSenderId: "262638128725",
+            appId: "1:262638128725:web:12136df5187f89deff8edc"
+        };
 
-    // 1. Auth Logic
-    async function signUp() {
-        const { data, error } = await _supabase.auth.signUp({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-        });
-        if (error) alert(error.message); else alert("Check your email for confirmation!");
-    }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-    async function signIn() {
-        const { data, error } = await _supabase.auth.signInWithPassword({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
-        });
-        if (error) alert(error.message); else checkUser();
-    }
+        let currentHubTab = 'approval';
+        let currentUserRole = '';
 
-    async function signOut() {
-        await _supabase.auth.signOut();
-        location.reload();
-    }
+        lucide.createIcons();
 
-    // 2. Data Logic
-    async function checkUser() {
-        const { data: { user } } = await _supabase.auth.getUser();
-        if (user) {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('user-email').innerText = user.email;
-            fetchTasks(user.id);
+        function switchTab(tab) {
+            currentHubTab = tab;
+            document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            const titles = { approval: 'Approval Board', production: 'Production Hub', airing: 'Airing Schedule' };
+            document.getElementById('board-title').innerText = titles[tab];
+            loadGlobalPitches();
         }
-    }
 
-    async function fetchTasks(userId) {
-        const { data, error } = await _supabase.from('tasks').select('*').eq('user_id', userId);
-        const list = document.getElementById('task-list');
-        list.innerHTML = data.map(t => `<div class="task-item">${t.task_name} <span>${t.is_completed ? '✅' : '⏳'}</span></div>`).join('');
-    }
+        function filterFeed() {
+            const query = document.getElementById('feedSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('.pitch-row');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? "block" : "none";
+            });
+        }
 
-    async function addTask() {
-        const user = (await _supabase.auth.getUser()).data.user;
-        const taskName = document.getElementById('newTask').value;
-        await _supabase.from('tasks').insert([{ task_name: taskName, user_id: user.id }]);
-        document.getElementById('newTask').value = '';
-        fetchTasks(user.id);
-    }
+        setInterval(() => {
+            const now = new Date();
+            const clockEl = document.getElementById('clock');
+            if(clockEl) clockEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        }, 1000);
 
-    checkUser(); // Check status on load
-</script>
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if(userDoc.exists) {
+                    const userData = userDoc.data();
+                    currentUserRole = userData.role;
+                    document.getElementById('role-tag').innerText = currentUserRole;
+                    document.getElementById('user-display').innerText = userData.displayName || user.displayName || user.email.split('@')[0].toUpperCase();
+                    
+                    const hour = new Date().getHours();
+                    let timeGreet = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+                    document.getElementById('greeting-msg').innerText = `${timeGreet}, ${currentUserRole}!`;
+                    document.getElementById('role-greeting').innerText = `Ready to lead the crew, ${userData.displayName || 'Chief'}?`;
+                }
+
+                loadGlobalPitches();
+                loadPersonalTasks(user.uid);
+                loadAnnouncements();
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('dashboard-section').classList.add('hidden');
+            }
+        });
+
+        async function updateProfileName() {
+            const newName = document.getElementById('updateNameInput').value;
+            if(!newName) return alert("Enter a name");
+            const user = auth.currentUser;
+            await db.collection("users").doc(user.uid).update({ displayName: newName });
+            document.getElementById('user-display').innerText = newName;
+            document.getElementById('updateNameInput').value = '';
+            alert("Name updated successfully!");
+        }
+
+        async function handleGoogleAuth() {
+            const selectedRole = document.getElementById('user-role').value;
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if (!userDoc.exists) {
+                    await db.collection("users").doc(user.uid).set({
+                        role: selectedRole,
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0]
+                    });
+                }
+            } catch(err) {
+                alert("Login Error: " + err.message);
+            }
+        }
+
+        function handleLogout() { auth.signOut(); }
+
+        function loadAnnouncements() {
+            db.collection("announcements").orderBy("createdAt", "desc").limit(10).onSnapshot(snapshot => {
+                const board = document.getElementById('announcement-board');
+                board.innerHTML = snapshot.docs.map(doc => `
+                    <div class="announcement-item">
+                        <div style="color:var(--accent-color); font-weight:bold; font-size:0.6rem;">${doc.data().author}:</div>
+                        <div>${doc.data().text}</div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        async function postAnnouncement() {
+            const txt = document.getElementById('newAnnouncement').value;
+            if(!txt) return;
+            const userDoc = await db.collection("users").doc(auth.currentUser.uid).get();
+            const authorName = userDoc.exists ? userDoc.data().displayName : (auth.currentUser.displayName || auth.currentUser.email.split('@')[0]);
+            
+            await db.collection("announcements").add({
+                text: txt,
+                author: authorName,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('newAnnouncement').value = '';
+        }
+
+        // EXCLUSIVE: UPDATE DATE FOR AP AND HOST
+        async function editAiringDate(id) {
+            if (currentUserRole !== 'Associate Producer' && currentUserRole !== 'Host') {
+                return alert("Only Associate Producers or Hosts can edit the Airing Date.");
+            }
+            const newDate = prompt("Enter New Airing Date (YYYY-MM-DD):");
+            if (newDate) {
+                await db.collection("pitches").doc(id).update({ date: newDate });
+                alert("Date Updated!");
+            }
+        }
+
+        function loadGlobalPitches() {
+            db.collection("pitches").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+                const list = document.getElementById('pitch-list');
+                let total = snapshot.size;
+                let completed = 0;
+
+                const filteredDocs = snapshot.docs.filter(doc => {
+                    const p = doc.data();
+                    const isFullyDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done' && p.tasks?.vo === 'done';
+                    if(isFullyDone) completed++;
+
+                    if (currentHubTab === 'approval') return !p.approved;
+                    if (currentHubTab === 'production') return p.approved && !isFullyDone;
+                    if (currentHubTab === 'airing') return p.approved && isFullyDone;
+                    return true;
+                });
+
+                if(filteredDocs.length === 0) {
+                    list.innerHTML = `<div style="text-align:center; padding:40px; color:#555; font-size:0.8rem;">No projects in this stage.</div>`;
+                } else {
+                    list.innerHTML = filteredDocs.map(doc => {
+                        const p = doc.data();
+                        const isOwner = auth.currentUser.email === p.author;
+                        const priorityClass = p.priority === 'Urgent' ? 'priority-high' : '';
+                        const tagClass = p.priority === 'Urgent' ? 'tag-urgent' : '';
+                        const isStoryDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done' && p.tasks?.vo === 'done';
+                        const storyDoneClass = isStoryDone ? 'status-done' : '';
+                        
+                        const isAdminRole = (currentUserRole === 'Associate Producer' || currentUserRole === 'Producer');
+                        const canApprove = (currentUserRole === 'Associate Producer' || currentUserRole === 'Host' || currentUserRole === 'Producer');
+
+                        // Permission Logic
+                        const isAssignedEditor = auth.currentUser.email === p.editor;
+                        const isAssignedCam = auth.currentUser.email === p.cameraman;
+                        const hasFullAccess = isAdminRole || isOwner;
+
+                        return `
+                            <div class="pitch-row ${priorityClass} ${storyDoneClass}">
+                                <span class="priority-tag ${tagClass}">${p.priority || 'Normal'}</span>
+                                ${isStoryDone ? '<span class="airing-tag">READY FOR AIRING</span>' : ''}
+                                <div style="font-weight:bold; color:var(--accent-color); margin-bottom:5px; font-size: 0.9rem; display:flex; align-items:center;">
+                                    📅 ${p.date || 'TBD'} 
+                                    ${(currentUserRole === 'Associate Producer' || currentUserRole === 'Host') ? `<button class="btn-date-edit" onclick="editAiringDate('${doc.id}')">EDIT DATE</button>` : ''}
+                                </div>
+                                <div class="assignment-box">
+                                    <span><i data-lucide="camera" class="icon-sm"></i> Cam: <b>${p.cameraman || 'Unassigned'}</b></span>
+                                    <span><i data-lucide="scissors" class="icon-sm"></i> Editor: <b>${p.editor || 'Unassigned'}</b></span>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr; font-size:0.75rem; color:#aaa; margin: 10px 0; gap: 5px;">
+                                    <span><i data-lucide="map-pin" class="icon-sm"></i> Loc: ${p.location}</span>
+                                </div>
+                                <div style="color:#eee; background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; font-size:0.9rem; border: 1px solid #333;">
+                                    ${p.about}
+                                    ${p.mediaLink ? `<br><a href="${p.mediaLink}" target="_blank" class="media-link-btn"><i data-lucide="external-link" class="icon-sm"></i> REF MEDIA</a>` : ''}
+                                    ${p.scriptLink ? `<br><a href="${p.scriptLink}" target="_blank" class="media-link-btn" style="color:var(--success)"><i data-lucide="file-text" class="icon-sm"></i> VIEW SCRIPT</a>` : ''}
+                                    ${p.voLink ? `<br><a href="${p.voLink}" target="_blank" class="media-link-btn" style="color:var(--ongoing)"><i data-lucide="mic" class="icon-sm"></i> LISTEN VO</a>` : ''}
+                                </div>
+                                
+                                ${p.approved ? `
+                                <div class="prod-tasks">
+                                    <span style="font-size:0.6rem; color:var(--accent-color); font-weight:900; letter-spacing: 0.5px;">PROGRESS TRACKER</span>
+                                    <div class="task-grid">
+                                        <div class="task-btn ${p.tasks?.script || ''}">
+                                            <i data-lucide="file-text" class="icon-sm"></i> 
+                                            SCRIPT
+                                            <span class="status-text">${p.tasks?.script || 'pending'}</span>
+                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'script', this.value, ${isOwner || isAdminRole})">
+                                                <option value="" ${p.tasks?.script === '' ? 'selected' : ''}>-- Select --</option>
+                                                <option value="ongoing" ${p.tasks?.script === 'ongoing' ? 'selected' : ''}>Ongoing</option>
+                                                <option value="pending" ${p.tasks?.script === 'pending' ? 'selected' : ''}>Wait Apprv</option>
+                                                <option value="done" ${p.tasks?.script === 'done' ? 'selected' : ''}>Approved</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="task-btn ${p.tasks?.shoot || ''}">
+                                            <i data-lucide="video" class="icon-sm"></i> SHOOT
+                                            <span class="status-text">${p.tasks?.shoot || 'pending'}</span>
+                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'shoot', this.value, ${isOwner || isAdminRole || isAssignedCam})">
+                                                <option value="" ${p.tasks?.shoot === '' ? 'selected' : ''}>-- Status --</option>
+                                                <option value="ongoing" ${p.tasks?.shoot === 'ongoing' ? 'selected' : ''}>Shooting</option>
+                                                <option value="done" ${p.tasks?.shoot === 'done' ? 'selected' : ''}>Done</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="task-btn ${p.tasks?.edit || ''}">
+                                            <i data-lucide="scissors" class="icon-sm"></i> EDIT
+                                            <span class="status-text">${p.tasks?.edit || 'pending'}</span>
+                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'edit', this.value, ${isAssignedEditor || isAdminRole})">
+                                                <option value="" ${p.tasks?.edit === '' ? 'selected' : ''}>-- Status --</option>
+                                                <option value="ongoing" ${p.tasks?.edit === 'ongoing' ? 'selected' : ''}>Editing</option>
+                                                <option value="done" ${p.tasks?.edit === 'done' ? 'selected' : ''}>Done</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="task-btn ${p.tasks?.vo || ''}">
+                                            <i data-lucide="mic" class="icon-sm"></i> VO
+                                            <span class="status-text">${p.tasks?.vo || 'pending'}</span>
+                                            <select class="task-select" onchange="handleVOActionDropdown('${doc.id}', this.value, ${currentUserRole === 'Host' || currentUserRole === 'Associate Producer'})">
+                                                <option value="" ${p.tasks?.vo === '' ? 'selected' : ''}>-- Status --</option>
+                                                <option value="ongoing" ${p.tasks?.vo === 'ongoing' ? 'selected' : ''}>Recording</option>
+                                                <option value="done" ${p.tasks?.vo === 'done' ? 'selected' : ''}>Done</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
+
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                                    <span style="font-size:0.6rem; color:#555; margin-top:12px;">Authored by: ${p.author}</span>
+                                    <div>
+                                        ${!p.approved && canApprove ? `<button class="btn-approve" onclick="approvePitch('${doc.id}')">APPROVE PITCH</button>` : ''}
+                                        ${isOwner ? `<button class="btn-delete" onclick="deletePitch('${doc.id}')">Delete</button>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+                document.getElementById('total-pitches-count').innerText = total;
+                document.getElementById('completed-pitches-count').innerText = completed;
+                lucide.createIcons();
+            });
+        }
+
+        // NEW DROPDOWN HANDLER WITH PERMISSIONS
+        async function handleTaskDropdown(docId, taskType, newValue, hasPermission) {
+            if (!hasPermission) {
+                alert("Permission Denied: You are not authorized to update this task.");
+                loadGlobalPitches(); // Refresh to revert dropdown
+                return;
+            }
+
+            // Custom Script Link Prompt
+            if (taskType === 'script' && (newValue === 'pending' || newValue === 'done')) {
+                const link = prompt("Confirm/Paste Script Link:");
+                if (link) await db.collection("pitches").doc(docId).update({ scriptLink: link });
+            }
+
+            const updateObj = {};
+            updateObj[`tasks.${taskType}`] = newValue;
+            await db.collection("pitches").doc(docId).update(updateObj);
+        }
+
+        // NEW VO DROPDOWN HANDLER
+        async function handleVOActionDropdown(id, newValue, hasPermission) {
+            if (!hasPermission) {
+                alert("Only the Program Host or Associate Producer can update Voice Over.");
+                loadGlobalPitches();
+                return;
+            }
+            
+            if (newValue === "done") {
+                const link = prompt("Paste Voice Over File Link:");
+                if (link) {
+                    await db.collection("pitches").doc(id).update({ 
+                        voLink: link, 
+                        "tasks.vo": "done" 
+                    });
+                } else {
+                    loadGlobalPitches();
+                }
+            } else {
+                await db.collection("pitches").doc(id).update({ "tasks.vo": newValue });
+            }
+        }
+
+        // MAINTAINED FUNCTIONS
+        async function approvePitch(id) {
+            if(confirm("Approve this story for production?")) {
+                await db.collection("pitches").doc(id).update({ approved: true });
+                switchTab('production');
+            }
+        }
+
+        async function addPitch() {
+            const about = document.getElementById('pAbout').value;
+            if(!about) return alert("Please enter story details.");
+            await db.collection("pitches").add({
+                priority: document.getElementById('pPriority').value,
+                date: document.getElementById('pDate').value,
+                location: document.getElementById('pLoc').value,
+                cameraman: document.getElementById('pCam').value,
+                editor: document.getElementById('pEditor').value,
+                mediaLink: document.getElementById('pMedia').value,
+                about: about,
+                author: auth.currentUser.email,
+                approved: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                tasks: { script: "", shoot: "", edit: "", vo: "" }
+            });
+            ['pAbout', 'pLoc', 'pCam', 'pEditor', 'pDate', 'pMedia'].forEach(id => document.getElementById(id).value = '');
+            switchTab('approval');
+        }
+
+        async function deletePitch(id) {
+            if(confirm("Delete this pitch?")) {
+                await db.collection("pitches").doc(id).delete();
+            }
+        }
+
+        function loadPersonalTasks(uid) {
+            db.collection("tasks").where("uid", "==", uid).orderBy("createdAt", "asc").onSnapshot(snapshot => {
+                const list = document.getElementById('task-list');
+                list.innerHTML = snapshot.docs.map(doc => {
+                    const t = doc.data();
+                    return `
+                        <div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.8rem; border: 1px solid #333;">
+                            <span style="${t.done ? 'text-decoration:line-through; opacity:0.4' : ''}">${t.text}</span>
+                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${doc.id}', ${t.done})" style="width:auto; margin:0; cursor:pointer;">
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        async function addTask() {
+            const val = document.getElementById('newTask').value;
+            if(!val) return;
+            await db.collection("tasks").add({
+                uid: auth.currentUser.uid,
+                text: val,
+                done: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('newTask').value = '';
+        }
+
+        async function toggleTask(id, status) {
+            await db.collection("tasks").doc(id).update({ done: !status });
+        }
+    </script>
 </body>
 </html>
