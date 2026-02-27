@@ -76,7 +76,15 @@ h1.hn{font-family:'Archivo Black',sans-serif;font-size:clamp(4rem,10vw,9.5rem);l
 .bh em{font-style:italic;font-family:'Archivo',sans-serif;font-weight:300;color:var(--muted)}
 
 /* ABOUT */
-#about{padding:9rem 3.5rem;display:grid;grid-template-columns:5fr 4fr;gap:8rem;align-items:start;position:relative;z-index:1}
+#about{padding:9rem 3.5rem;display:grid;grid-template-columns:4fr 3fr 3fr;gap:5rem;align-items:start;position:relative;z-index:1}
+.kra-photo-wrap{position:relative;width:100%}
+.kra-photo{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;display:block;filter:grayscale(15%) contrast(1.05)}
+.kra-photo-corner{position:absolute;width:28px;height:28px}
+.kra-photo-corner.tl{top:-1px;left:-1px;border-top:3px solid var(--orange);border-left:3px solid var(--orange)}
+.kra-photo-corner.tr{top:-1px;right:-1px;border-top:3px solid var(--gold);border-right:3px solid var(--gold)}
+.kra-photo-corner.bl{bottom:-1px;left:-1px;border-bottom:3px solid var(--gold);border-left:3px solid var(--gold)}
+.kra-photo-corner.br{bottom:-1px;right:-1px;border-bottom:3px solid var(--orange);border-right:3px solid var(--orange)}
+.kra-photo-label{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);font-family:'Syne Mono',monospace;font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--fg);background:rgba(9,9,11,.85);padding:.4rem .8rem;white-space:nowrap}
 .about-body p{font-size:1.05rem;line-height:1.9;color:var(--muted);margin-bottom:1.4rem}
 .about-body p strong{color:var(--fg);font-weight:600}
 .loc{display:inline-flex;align-items:center;gap:.7rem;margin-top:2rem;padding:.8rem 1.4rem;background:var(--surface);border:1px solid var(--line);font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
@@ -190,10 +198,34 @@ footer .fn{color:var(--muted)}
 .au1{animation:au .8s .1s both}.au2{animation:au .8s .25s both}.au3{animation:au .8s .4s both}
 .au4{animation:au .8s .55s both}.au5{animation:au .8s .7s both}.au6{animation:au .8s .85s both}
 
-/* RESPONSIVE */
+/* GALLERY */
+.gallery-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3px;background:var(--dim);margin-top:3rem}
+.gal-item{position:relative;overflow:hidden;cursor:pointer;aspect-ratio:16/10}
+.gal-item.gal-video{aspect-ratio:16/10;background:#0d0810}
+.gal-inner{position:absolute;inset:0}
+.gal-img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1),filter .4s}
+.gal-item:hover .gal-img{transform:scale(1.05);filter:brightness(.7)}
+.gal-overlay{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(9,9,11,.92));transition:opacity .4s}
+.gal-item.gal-video .gal-overlay{background:rgba(9,9,11,.55)}
+.gal-item:hover .gal-overlay{opacity:.95}
+.gal-play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-size:4rem;color:var(--orange);opacity:.7;transition:opacity .3s,transform .3s;text-shadow:0 0 40px rgba(255,107,43,.5)}
+.gal-item.gal-video:hover .gal-play-btn{opacity:1;transform:translate(-50%,-60%) scale(1.15)}
+.gal-label{position:absolute;bottom:0;left:0;right:0;padding:1.5rem 2rem;transform:translateY(6px);opacity:0;transition:transform .4s,opacity .4s}
+.gal-item:hover .gal-label{transform:none;opacity:1}
+.gal-tag{display:block;font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--orange);margin-bottom:.4rem}
+.gal-title{display:block;font-family:'Archivo Black',sans-serif;font-size:1rem;color:var(--fg)}
+/* TV5 bento card video style */
+.bc-tv5-thumb{position:absolute;inset:0;background:linear-gradient(135deg,#160008,#00060f);display:flex;align-items:center;justify-content:center}
+.bc-tv5-play{font-size:5rem;color:var(--orange);opacity:.25;transition:opacity .4s,transform .4s;text-shadow:0 0 60px var(--orange)}
+.bc:hover .bc-tv5-play{opacity:.6;transform:scale(1.1)}
+.bc-tv5-overlay{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(9,9,11,.98))}
+/* Fix about responsive */
 @media(max-width:1024px){
-  nav,#hero,#about,#work,#skills,#projects,#contact,footer{padding-left:2rem;padding-right:2rem}
-  #about{grid-template-columns:1fr;gap:4rem}
+  nav,#hero,#about,#work,#gallery,#skills,#projects,#contact,footer{padding-left:2rem;padding-right:2rem}
+  #about{grid-template-columns:1fr 1fr;gap:3rem}
+  #about>div:nth-child(1){grid-column:span 2}
+  .gallery-grid{grid-template-columns:1fr 1fr}
+  .gal-item.gal-video{grid-column:span 2}
   .skills-intro{grid-template-columns:1fr;gap:2rem}
   .skills-cols{grid-template-columns:1fr 1fr}
   .contact-grid{grid-template-columns:1fr;gap:4rem}
@@ -205,7 +237,12 @@ footer .fn{color:var(--muted)}
   .nav-links{display:none}
   .nav-r{gap:.6rem}
   #hero{padding:9rem 1.5rem 3rem}
-  #about,#work,#skills,#projects,#contact{padding:5rem 1.5rem}
+  #about,#work,#gallery,#skills,#projects,#contact{padding:5rem 1.5rem}
+  #about{grid-template-columns:1fr}
+  #about>div:nth-child(1){grid-column:span 1}
+  .kra-photo-wrap{max-width:260px}
+  .gallery-grid{grid-template-columns:1fr}
+  .gal-item.gal-video{grid-column:span 1}
   footer{padding:1.5rem;flex-direction:column;gap:.6rem;text-align:center}
   .hero-bottom{grid-template-columns:1fr 1fr}
   .hb:nth-child(3){border-right:none}
@@ -235,7 +272,7 @@ footer .fn{color:var(--muted)}
     </ul>
     <a href="https://radiogames.online" target="_blank" class="nbtn nbtn-gold">🎮 RB Live</a>
     <a href="https://www.youtube.com/@krastoriesph" target="_blank" class="nbtn nbtn-red">▶ YouTube</a>
-    <a href="mailto:kennethantonil199811@gmail.com" class="nbtn nbtn-orange">Hire Me</a>
+    <a href="#" onclick="this.href='mail'+'to:'+'kennethantonil199811'+'@'+'gmail.com';return true;" class="nbtn nbtn-orange">Hire Me</a>
   </div>
 </nav>
 
@@ -297,6 +334,16 @@ footer .fn{color:var(--muted)}
     </div>
     <div class="loc"><span class="loc-dot"></span>Binangonan, Calabarzon — Open to Remote</div>
   </div>
+  <div class="r" style="transition-delay:.1s">
+    <div class="kra-photo-wrap">
+      <img src="https://i.imgur.com/wC3gzUa.jpeg" alt="Kenneth Reves Antonil" class="kra-photo"/>
+      <div class="kra-photo-corner tl"></div>
+      <div class="kra-photo-corner tr"></div>
+      <div class="kra-photo-corner bl"></div>
+      <div class="kra-photo-corner br"></div>
+      <div class="kra-photo-label">Kenneth Reves Antonil</div>
+    </div>
+  </div>
   <div class="r" style="transition-delay:.15s">
     <p class="sk">Experience</p>
     <div class="timeline">
@@ -335,16 +382,20 @@ footer .fn{color:var(--muted)}
   </div>
   <div class="bento r" style="transition-delay:.1s">
     <!-- TV5 -->
-    <div class="bc bc-1">
-      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
-      <div class="bc-badge">FEATURED</div>
+    <a href="https://drive.google.com/file/d/1boh2MGhIBNRumwsNX01lNNTqmtdBvr89/view?usp=sharing" target="_blank" class="bc bc-1">
+      <div class="bc-glow"></div>
+      <div class="bc-tv5-thumb">
+        <div class="bc-tv5-play">▶</div>
+        <div class="bc-tv5-overlay"></div>
+      </div>
+      <div class="bc-badge">FEATURED · WATCH ↗</div>
       <div class="bc-big-num">01</div>
       <div class="bc-content">
         <p class="bc-tag">Broadcast · TV5 · 2025–Present</p>
         <h3 class="bc-title">TV5 Broadcast Video Editing</h3>
-        <p class="bc-desc">Network-grade video editing with precision pacing, audio visualizers, and seamless scene transitions for one of the Philippines' major TV networks.</p>
+        <p class="bc-desc">Network-grade video editing with precision pacing, audio visualizers, and seamless scene transitions. Click to watch the reel.</p>
       </div>
-    </div>
+    </a>
     <!-- RB Live -->
     <a href="https://radiogames.online" target="_blank" class="bc bc-2">
       <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
@@ -356,14 +407,17 @@ footer .fn{color:var(--muted)}
         <p class="bc-desc">Real-time PWA with Firebase, reward systems, and voucher integrations. Click to visit live.</p>
       </div>
     </a>
-    <!-- OBS -->
-    <div class="bc bc-3">
-      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
+    <!-- Graphic Design 1 -->
+    <div class="bc bc-3" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})">
+      <div class="bc-glow"></div>
+      <img src="https://i.imgur.com/NoNaihY.jpeg" alt="Graphic Design" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;transition:opacity .4s"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(9,9,11,.95));pointer-events:none"></div>
+      <div class="bc-badge">DESIGN ↓</div>
       <div class="bc-big-num">03</div>
       <div class="bc-content">
-        <p class="bc-tag">Technical · Live Streaming</p>
-        <h3 class="bc-title">Custom OBS Broadcast Dashboards</h3>
-        <p class="bc-desc">JS-driven control panels managing sponsor ads, lower thirds, and scene switching via keyboard triggers.</p>
+        <p class="bc-tag">Graphic Design · Branding</p>
+        <h3 class="bc-title">Visual Design Work</h3>
+        <p class="bc-desc">Custom graphics, thumbnails, and brand assets for digital platforms.</p>
       </div>
     </div>
     <!-- KRA Stories -->
@@ -385,6 +439,51 @@ footer .fn{color:var(--muted)}
         <p class="bc-tag">Live Production · Horror &amp; Petty Night</p>
         <h3 class="bc-title">TV-Level Live Storytelling Broadcasts</h3>
         <p class="bc-desc">Advanced OBS setups, custom scene logic, and real-time interactive elements for live horror storytelling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" style="padding:6rem 3.5rem;border-top:1px solid var(--line);position:relative;z-index:1">
+  <div class="sec-head r">
+    <div>
+      <p class="sk">// 02.5 — Gallery</p>
+      <h2 class="bh">VISUAL <em>Work</em></h2>
+    </div>
+  </div>
+  <div class="gallery-grid r" style="transition-delay:.1s">
+    <!-- TV5 Video -->
+    <a href="https://drive.google.com/file/d/1boh2MGhIBNRumwsNX01lNNTqmtdBvr89/view?usp=sharing" target="_blank" class="gal-item gal-video">
+      <div class="gal-inner">
+        <div class="gal-play-btn">▶</div>
+        <div class="gal-overlay"></div>
+        <div class="gal-label">
+          <span class="gal-tag">TV5 Broadcast · Video Edit</span>
+          <span class="gal-title">Watch on Google Drive ↗</span>
+        </div>
+      </div>
+    </a>
+    <!-- Graphic Design 1 -->
+    <div class="gal-item">
+      <div class="gal-inner">
+        <img src="https://i.imgur.com/NoNaihY.jpeg" alt="Graphic Design 1" class="gal-img"/>
+        <div class="gal-overlay"></div>
+        <div class="gal-label">
+          <span class="gal-tag">Graphic Design</span>
+          <span class="gal-title">Visual Design Work</span>
+        </div>
+      </div>
+    </div>
+    <!-- Graphic Design 2 -->
+    <div class="gal-item">
+      <div class="gal-inner">
+        <img src="https://i.imgur.com/64xkYjM.jpeg" alt="Graphic Design 2" class="gal-img"/>
+        <div class="gal-overlay"></div>
+        <div class="gal-label">
+          <span class="gal-tag">Graphic Design</span>
+          <span class="gal-title">Visual Design Work</span>
+        </div>
       </div>
     </div>
   </div>
@@ -522,7 +621,7 @@ footer .fn{color:var(--muted)}
     <div class="r" style="transition-delay:.12s">
       <div class="avail"><span class="avail-dot"></span>Available for projects</div>
       <div>
-        <a href="mailto:kennethantonil199811@gmail.com" class="cl">
+        <a href="#" onclick="this.href='mail'+'to:'+'kennethantonil199811'+'@'+'gmail.com';return true;" class="cl">
           <div><p class="cl-type">Email</p><p class="cl-val">kennethantonil199811@gmail.com</p></div>
           <span class="cl-arr">↗</span>
         </a>
