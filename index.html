@@ -1,631 +1,589 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROD-HUB PRO | Production Management</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        /* EXISTING STYLES MANTAINED */
-        :root {
-            --accent-color: #ffb400;
-            --bg-dark: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --input-bg: #252525;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
-            --danger: #ff4444;
-            --success: #00c851;
-            --ongoing: #33b5e5;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kenneth Reves Antonil — Multimedia Specialist</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne+Mono&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;--surface:#111114;--fg:#ededea;
+  --muted:rgba(237,237,234,0.45);--dim:rgba(237,237,234,0.12);
+  --orange:#ff6b2b;--gold:#f5c842;--blue:#3b82f6;--green:#22c55e;
+  --red:#ff4444;--line:rgba(237,237,234,0.08);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:'Archivo',sans-serif;overflow-x:hidden;cursor:none}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.028;pointer-events:none;z-index:9000}
 
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text-main); margin: 0; line-height: 1.6; }
-        .hidden { display: none !important; }
+/* CURSOR */
+#CUR{position:fixed;width:12px;height:12px;border-radius:50%;background:var(--orange);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .25s,height .25s,background .25s;mix-blend-mode:screen}
+#CUR2{position:fixed;width:40px;height:40px;border-radius:50%;border:1px solid rgba(245,200,66,.4);pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
 
-        nav { 
-            background: #000; padding: 1rem 1.5rem; display: flex; justify-content: space-between; 
-            align-items: center; border-bottom: 2px solid var(--accent-color);
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .nav-logo { font-weight: 900; color: var(--accent-color); font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
-        .nav-logo img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent-color); object-fit: cover; }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;justify-content:space-between;align-items:center;padding:1.3rem 3.5rem;background:rgba(9,9,11,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.logo{font-family:'Archivo Black',sans-serif;font-size:1rem;letter-spacing:.04em;color:var(--fg);text-decoration:none}
+.logo span{color:var(--orange)}
+.nav-r{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--orange)}
+.nbtn{font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;padding:.5rem 1.1rem;text-decoration:none;transition:background .25s,color .25s;white-space:nowrap}
+.nbtn-gold{border:1px solid var(--gold);color:var(--gold)}
+.nbtn-gold:hover{background:var(--gold);color:#000}
+.nbtn-red{border:1px solid var(--red);color:var(--red)}
+.nbtn-red:hover{background:var(--red);color:#fff}
+.nbtn-orange{border:1px solid var(--orange);color:var(--orange)}
+.nbtn-orange:hover{background:var(--orange);color:#000}
 
-        .dashboard-wrapper { 
-            max-width: 1440px; 
-            margin: 0 auto; 
-            padding: 15px; 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 20px; 
-        }
+/* HERO */
+#hero{min-height:100vh;display:grid;grid-template-rows:1fr auto;padding:0 3.5rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(255,107,43,.07),transparent 70%),radial-gradient(ellipse 50% 50% at 20% 80%,rgba(245,200,66,.05),transparent 60%);pointer-events:none}
+.hero-content{display:flex;flex-direction:column;justify-content:center;padding-top:9rem;padding-bottom:3rem;max-width:1100px}
+.hero-eyebrow{font-family:'Syne Mono',monospace;font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:var(--orange);margin-bottom:2rem;display:flex;align-items:center;gap:1rem}
+.hero-eyebrow::before{content:'';width:40px;height:1px;background:var(--orange)}
+h1.hn{font-family:'Archivo Black',sans-serif;font-size:clamp(4rem,10vw,9.5rem);line-height:.92;letter-spacing:-.03em;margin-bottom:.3rem}
+.hn .l1{display:block;color:var(--fg);animation:au .8s .1s both}
+.hn .l2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--gold);animation:au .8s .25s both}
+.hn .l3{display:block;color:var(--orange);animation:au .8s .4s both}
+.hero-sub{margin-top:2.5rem;font-size:1.05rem;font-weight:300;color:var(--muted);max-width:520px;line-height:1.75;animation:au .8s .55s both}
+.hero-sub strong{color:var(--fg);font-weight:600}
+.hero-links{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2.5rem;animation:au .8s .7s both}
+.hl{font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;padding:.5rem 1.1rem;text-decoration:none;border:1px solid var(--dim);color:var(--muted);transition:border-color .25s,color .25s,background .25s}
+.hl:hover{border-color:var(--orange);color:var(--orange)}
+.hl.live-app{border-color:var(--gold);color:var(--gold)}
+.hl.live-app:hover{background:var(--gold);color:#000}
+.hl.yt{border-color:var(--red);color:var(--red)}
+.hl.yt:hover{background:var(--red);color:#fff}
+.hero-bottom{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);animation:au .8s .85s both}
+.hb{padding:2rem;border-right:1px solid var(--line)}
+.hb:last-child{border-right:none}
+.hb-n{font-family:'Archivo Black',sans-serif;font-size:2.4rem;color:var(--fg);line-height:1;margin-bottom:.3rem}
+.hb-n span{color:var(--orange)}
+.hb-l{font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
 
-        @media (min-width: 1100px) {
-            .dashboard-wrapper { grid-template-columns: 320px 1fr 300px; padding: 25px; }
-        }
-        
-        .card { background: var(--card-bg); padding: 22px; border-radius: 14px; border: 1px solid #2a2a2a; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h3 { color: var(--accent-color); font-size: 0.8rem; text-transform: uppercase; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 12px; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+/* TICKER */
+.ticker-wrap{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.85rem 0;overflow:hidden;background:rgba(255,107,43,.02)}
+.ticker{display:flex;gap:2.5rem;white-space:nowrap;animation:ticker 22s linear infinite}
+.ticker s{font-family:'Archivo Black',sans-serif;font-size:1.1rem;letter-spacing:.06em;text-decoration:none;color:rgba(237,237,234,.1)}
+.ticker s.o{color:rgba(255,107,43,.3)}.ticker s.g{color:rgba(245,200,66,.25)}.ticker s.r{color:rgba(255,68,68,.2)}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-        .pitch-row { 
-            background: #222; padding: 18px; border-radius: 12px; margin-bottom: 18px; 
-            border-left: 5px solid var(--accent-color); position: relative; transition: 0.3s;
-        }
-        .priority-high { border-left-color: var(--danger); }
-        .priority-tag { font-size: 0.65rem; padding: 3px 8px; border-radius: 5px; float: right; font-weight: bold; text-transform: uppercase; }
-        .tag-urgent { background: var(--danger); color: white; }
-        
-        .prod-tasks { margin-top: 18px; border-top: 1px solid #333; padding-top: 15px; }
-        .task-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        @media (min-width: 600px) { .task-grid { grid-template-columns: repeat(4, 1fr); } }
-        
-        .task-btn { 
-            font-size: 0.6rem; padding: 10px 5px; border-radius: 6px; border: 1px solid #444; 
-            background: #111; color: #888; cursor: pointer; text-align: center; font-weight: 800; transition: 0.2s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-        }
-        .task-btn.ongoing { border-color: var(--ongoing); color: var(--ongoing); background: rgba(51, 181, 229, 0.05); }
-        .task-btn.done { border-color: var(--success); color: var(--success); background: rgba(0, 200, 81, 0.1); }
-        .task-btn.pending { border-color: var(--accent-color); color: var(--accent-color); }
-        
-        .pitch-row.status-done { border-left-color: var(--success) !important; background: #1b251e; }
+/* SECTION BASE */
+.sk{font-family:'Syne Mono',monospace;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--orange);margin-bottom:1rem;opacity:.8}
+.bh{font-family:'Archivo Black',sans-serif;font-size:clamp(2.4rem,4vw,3.8rem);line-height:1.05;letter-spacing:-.02em}
+.bh em{font-style:italic;font-family:'Archivo',sans-serif;font-weight:300;color:var(--muted)}
 
-        input, textarea, select { 
-            width: 100%; padding: 12px; margin-bottom: 15px; background: var(--input-bg); 
-            border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;
-        }
-        input:focus, textarea:focus { border-color: var(--accent-color); outline: none; }
-        
-        button { 
-            background: var(--accent-color); color: #000; border: none; padding: 14px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s;
-        }
-        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .btn-delete { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 6px 12px; font-size: 0.7rem; margin-top: 12px; border-radius: 6px; }
+/* ABOUT */
+#about{padding:9rem 3.5rem;display:grid;grid-template-columns:5fr 4fr;gap:8rem;align-items:start;position:relative;z-index:1}
+.about-body p{font-size:1.05rem;line-height:1.9;color:var(--muted);margin-bottom:1.4rem}
+.about-body p strong{color:var(--fg);font-weight:600}
+.loc{display:inline-flex;align-items:center;gap:.7rem;margin-top:2rem;padding:.8rem 1.4rem;background:var(--surface);border:1px solid var(--line);font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.loc-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pg 2s infinite}
+@keyframes pg{0%,100%{box-shadow:0 0 6px var(--green)}50%{box-shadow:0 0 18px var(--green)}}
+.timeline{margin-top:0}
+.tl{padding:1.5rem 0 1.5rem 1.5rem;border-bottom:1px solid var(--line);position:relative}
+.tl::before{content:'';position:absolute;left:0;top:2rem;width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.tl.now::before{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.tl-yr{font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--orange);margin-bottom:.3rem}
+.tl-role{font-family:'Archivo Black',sans-serif;font-size:1rem;margin-bottom:.2rem}
+.tl-co{font-size:.85rem;color:var(--muted);font-weight:300}
+.tl-co strong{color:var(--gold)}
 
-        .announcement-item { border-bottom: 1px solid #2a2a2a; padding: 10px 0; display: flex; align-items: flex-start; gap: 10px; }
-        .announcement-item:last-child { border: none; }
+/* WORK BENTO */
+#work{padding:6rem 3.5rem;border-top:1px solid var(--line);position:relative;z-index:1}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4rem}
+.bento{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:180px;gap:3px;background:var(--dim)}
+.bc{background:var(--surface);position:relative;overflow:hidden;cursor:none;transition:background .3s;text-decoration:none;color:inherit;display:block}
+.bc:hover{background:#161618}
+.bc-1{grid-column:span 7;grid-row:span 2}
+.bc-2{grid-column:span 5;grid-row:span 2}
+.bc-3{grid-column:span 4;grid-row:span 2}
+.bc-4{grid-column:span 4;grid-row:span 2}
+.bc-5{grid-column:span 4;grid-row:span 2}
+.bc-glow{position:absolute;inset:0;opacity:0;transition:opacity .5s}
+.bc:hover .bc-glow{opacity:1}
+.bc-1 .bc-glow{background:radial-gradient(ellipse at 30% 60%,rgba(255,107,43,.12),transparent 60%)}
+.bc-2 .bc-glow{background:radial-gradient(ellipse at 70% 40%,rgba(245,200,66,.12),transparent 60%)}
+.bc-3 .bc-glow{background:radial-gradient(ellipse at 50% 50%,rgba(59,130,246,.1),transparent 60%)}
+.bc-4 .bc-glow{background:radial-gradient(ellipse at 50% 50%,rgba(255,68,68,.1),transparent 60%)}
+.bc-5 .bc-glow{background:radial-gradient(ellipse at 50% 50%,rgba(34,197,94,.1),transparent 60%)}
+.bc-bg-pattern{position:absolute;inset:0;background-image:linear-gradient(rgba(237,237,234,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(237,237,234,.03) 1px,transparent 1px);background-size:30px 30px}
+.bc-big-num{position:absolute;bottom:-1rem;right:1rem;font-family:'Archivo Black',sans-serif;font-size:8rem;color:rgba(237,237,234,.03);line-height:1;pointer-events:none;transition:opacity .4s}
+.bc:hover .bc-big-num{color:rgba(237,237,234,.06)}
+.bc-content{position:absolute;inset:0;padding:2rem;display:flex;flex-direction:column;justify-content:flex-end}
+.bc-tag{font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;margin-bottom:.6rem}
+.bc-1 .bc-tag{color:var(--orange)}.bc-2 .bc-tag{color:var(--gold)}.bc-3 .bc-tag{color:var(--blue)}.bc-4 .bc-tag{color:var(--red)}.bc-5 .bc-tag{color:var(--green)}
+.bc-title{font-family:'Archivo Black',sans-serif;font-size:1.15rem;line-height:1.15;margin-bottom:.5rem}
+.bc-1 .bc-title{font-size:1.7rem}
+.bc-desc{font-size:.8rem;color:var(--muted);line-height:1.6;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+.bc:hover .bc-desc{opacity:1;transform:none}
+.bc-badge{position:absolute;top:1.2rem;right:1.2rem;font-family:'Syne Mono',monospace;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;padding:.3rem .7rem;border:1px solid var(--dim);color:var(--dim)}
 
-        .media-link-btn {
-            display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
-            padding: 6px 12px; background: #333; border-radius: 6px; color: var(--accent-color);
-            text-decoration: none; font-size: 0.75rem; border: 1px solid #444;
-        }
+/* SKILLS */
+#skills{padding:9rem 3.5rem;border-top:1px solid var(--line);position:relative;z-index:1}
+.skills-intro{display:grid;grid-template-columns:1fr 2.5fr;gap:6rem;margin-bottom:5rem}
+.skills-stmt{font-family:'Archivo Black',sans-serif;font-size:clamp(1.6rem,2.5vw,2.4rem);font-weight:900;line-height:1.25;letter-spacing:-.02em;color:rgba(237,237,234,.6)}
+.skills-stmt strong{color:var(--fg)}
+.skills-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--dim)}
+.sk-col{background:var(--surface);padding:2.5rem}
+.sk-head{font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--line)}
+.sk-col:nth-child(1) .sk-head{color:var(--orange)}.sk-col:nth-child(2) .sk-head{color:var(--gold)}.sk-col:nth-child(3) .sk-head{color:var(--blue)}.sk-col:nth-child(4) .sk-head{color:var(--green)}
+.si{padding:.6rem 0;border-bottom:1px solid rgba(237,237,234,.05);font-size:.85rem;color:var(--muted);transition:color .2s,padding-left .25s;display:flex;align-items:center;gap:.6rem}
+.si::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.35;flex-shrink:0;transition:opacity .2s}
+.si:hover{color:var(--fg);padding-left:.4rem}.si:hover::before{opacity:1}
 
-        .stat-badge { background: #000; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; flex: 1; }
-        .stat-val { display: block; font-size: 1.2rem; font-weight: 900; color: var(--accent-color); }
-        .stat-label { font-size: 0.55rem; color: #888; text-transform: uppercase; }
+/* PROJECTS */
+#projects{padding:9rem 3.5rem;border-top:1px solid var(--line);position:relative;z-index:1}
+.proj-list{margin-top:4rem}
+.pi{display:grid;grid-template-columns:auto 1fr auto;gap:3rem;align-items:start;padding:3rem 0;border-top:1px solid var(--line);transition:padding-left .35s;cursor:pointer}
+.pi:last-child{border-bottom:1px solid var(--line)}
+.pi:hover{padding-left:1.5rem}
+.pi-num{font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:var(--dim);padding-top:.4rem}
+.pi-name{font-family:'Archivo Black',sans-serif;font-size:1.55rem;margin-bottom:.5rem;transition:color .25s}
+.pi:hover .pi-name{color:var(--orange)}
+.pi-role{font-family:'Syne Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:1rem}
+.pi-desc{font-size:.95rem;color:var(--muted);line-height:1.85;max-width:620px}
+.pi-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+.pi-tag{font-family:'Syne Mono',monospace;font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;padding:.3rem .7rem;border:1px solid var(--dim);color:var(--dim)}
+.pi-link{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.2rem;font-family:'Syne Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;padding-bottom:.2rem}
+.pi-link.gold-link{color:var(--gold);border-bottom:1px solid rgba(245,200,66,.3)}
+.pi-link.yt-link{color:var(--red);border-bottom:1px solid rgba(255,68,68,.3)}
+.pi-right{text-align:right;padding-top:.4rem}
+.pi-year{font-family:'Syne Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1rem}
+.pi-arrow{font-size:1.4rem;color:var(--dim);transition:color .25s,transform .25s}
+.pi:hover .pi-arrow{color:var(--orange);transform:translate(4px,-4px)}
 
-        @media (max-width: 1099px) {
-            .sidebar-left { order: 2; }
-            .main-feed { order: 1; }
-            .sidebar-right { order: 3; }
-        }
-        .icon-sm { width: 14px; height: 14px; }
+/* CONTACT */
+#contact{padding:9rem 3.5rem;border-top:1px solid var(--line);position:relative;z-index:1;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(255,107,43,.05),transparent 70%)}
+.contact-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:8rem;align-items:start}
+.contact-h{font-family:'Archivo Black',sans-serif;font-size:clamp(3rem,6vw,6rem);line-height:.92;letter-spacing:-.03em;margin-bottom:2.5rem}
+.contact-h .stroke{color:transparent;-webkit-text-stroke:1.5px var(--fg);display:block}
+.contact-h .fill{color:var(--orange);display:block}
+.contact-copy{font-size:1rem;color:var(--muted);line-height:1.85;max-width:420px}
+.avail{display:inline-flex;align-items:center;gap:.7rem;margin-bottom:2.5rem;padding:.75rem 1.4rem;border:1px solid rgba(34,197,94,.3);font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green);animation:pb 2s infinite}
+.avail-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes pb{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.2)}50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+.cl{display:flex;justify-content:space-between;align-items:center;padding:1.3rem 0;border-top:1px solid var(--line);text-decoration:none;color:var(--fg);transition:padding-left .3s,color .25s;position:relative;overflow:hidden}
+.cl:last-child{border-bottom:1px solid var(--line)}
+.cl::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange);transform:scaleY(0);transition:transform .3s}
+.cl:hover::after{transform:scaleY(1)}
+.cl:hover{padding-left:1.2rem;color:var(--orange)}
+.cl.yt-cl:hover{color:var(--red)}.cl.yt-cl::after{background:var(--red)}
+.cl.app-cl:hover{color:var(--gold)}.cl.app-cl::after{background:var(--gold)}
+.cl-type{font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:.2rem}
+.cl-val{font-size:.95rem;font-weight:600}
+.cl-arr{opacity:.3;font-size:1.1rem;transition:opacity .25s,transform .25s}
+.cl:hover .cl-arr{opacity:1;transform:translate(4px,-2px)}
 
-        .hub-tabs { display: flex; gap: 5px; margin-bottom: 15px; background: #000; padding: 5px; border-radius: 10px; border: 1px solid #222; }
-        .hub-tab { flex: 1; padding: 10px; font-size: 0.65rem; font-weight: 800; text-align: center; cursor: pointer; border-radius: 6px; color: #555; transition: 0.3s; text-transform: uppercase; }
-        .hub-tab.active { background: var(--accent-color); color: #000; }
-        .btn-approve { background: var(--success); color: white; width: auto; padding: 6px 15px; font-size: 0.7rem; margin-top: 12px; margin-left: 5px; }
-        .airing-tag { background: #fff; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 0.6rem; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+/* FOOTER */
+footer{padding:2rem 3.5rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+footer span{font-family:'Syne Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+footer .fn{color:var(--muted)}
 
-        /* ADDED STYLES FOR ASSIGNMENT */
-        .assignment-box { font-size: 0.65rem; color: #777; margin-top: 5px; display: flex; gap: 10px; }
-        .assignment-box b { color: var(--accent-color); }
+/* REVEAL */
+.r{opacity:0;transform:translateY(36px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.r.on{opacity:1;transform:none}
+@keyframes au{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.au1{animation:au .8s .1s both}.au2{animation:au .8s .25s both}.au3{animation:au .8s .4s both}
+.au4{animation:au .8s .55s both}.au5{animation:au .8s .7s both}.au6{animation:au .8s .85s both}
 
-        /* NEW IMPROVED STYLES */
-        .status-text { font-size: 0.5rem; text-transform: uppercase; margin-top: 2px; opacity: 0.8; }
-        .task-select { background: #000; color: white; border: 1px solid #444; font-size: 0.6rem; padding: 2px; border-radius: 4px; margin-top: 5px; width: 100%; cursor: pointer; }
-        .btn-date-edit { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 2px 5px; font-size: 0.6rem; width: auto; margin-left: 10px; }
-    </style>
+/* RESPONSIVE */
+@media(max-width:1024px){
+  nav,#hero,#about,#work,#skills,#projects,#contact,footer{padding-left:2rem;padding-right:2rem}
+  #about{grid-template-columns:1fr;gap:4rem}
+  .skills-intro{grid-template-columns:1fr;gap:2rem}
+  .skills-cols{grid-template-columns:1fr 1fr}
+  .contact-grid{grid-template-columns:1fr;gap:4rem}
+  .bento{grid-template-columns:1fr 1fr}
+  .bc{grid-column:span 1!important;grid-row:span 1!important}
+}
+@media(max-width:640px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .nav-r{gap:.6rem}
+  #hero{padding:9rem 1.5rem 3rem}
+  #about,#work,#skills,#projects,#contact{padding:5rem 1.5rem}
+  footer{padding:1.5rem;flex-direction:column;gap:.6rem;text-align:center}
+  .hero-bottom{grid-template-columns:1fr 1fr}
+  .hb:nth-child(3){border-right:none}
+  .skills-cols{grid-template-columns:1fr}
+  .bento{grid-template-columns:1fr}
+  .pi{grid-template-columns:1fr;gap:1rem}
+  .pi-right{display:none}
+  .sec-head{flex-direction:column;gap:1rem;align-items:flex-start}
+}
+</style>
 </head>
 <body>
 
-    <div id="auth-section" style="height:100vh; display:flex; align-items:center; justify-content:center; background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://i.imgur.com/7d3ROpd.jpeg') center/cover;">
-        <div style="background: rgba(20,20,20,0.95); padding: 40px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; border: 1px solid var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <img src="https://i.imgur.com/7d3ROpd.jpeg" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-color); margin-bottom: 20px;">
-            <h2 style="color: var(--accent-color); margin: 0; letter-spacing: 2px;">PROD-HUB</h2>
-            <p style="font-size: 0.85rem; color: #888; margin-bottom: 25px;">Premium Production Workspace</p>
-            
-            <label style="color:var(--accent-color); font-size: 0.7rem; display: block; text-align: left; margin-bottom: 5px; font-weight: bold;">CHOOSE YOUR ROLE:</label>
-            <select id="user-role" style="border: 1px solid var(--accent-color);">
-                <option value="Producer">Producer</option>
-                <option value="Associate Producer">Associate Producer</option>
-                <option value="Host">Program Host</option>
-                <option value="Editor">Video Editor</option>
-                <option value="Writer">Script Writer</option>
-                <option value="Camera">Camera/DP</option>
-            </select>
+<div id="CUR"></div>
+<div id="CUR2"></div>
 
-            <button onclick="handleGoogleAuth()" style="display:flex; align-items:center; justify-content:center; gap:10px;">
-                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" style="width:20px; background:white; border-radius:50%; padding:2px;">
-                CONTINUE WITH GOOGLE
-            </button>
-            <p style="font-size: 0.65rem; color: #555; margin-top: 15px;">Access is restricted to authorized personnel only.</p>
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="logo">KRA<span>.</span></a>
+  <div class="nav-r">
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="https://radiogames.online" target="_blank" class="nbtn nbtn-gold">🎮 RB Live</a>
+    <a href="https://www.youtube.com/@krastoriesph" target="_blank" class="nbtn nbtn-red">▶ YouTube</a>
+    <a href="mailto:kennethantonil199811@gmail.com" class="nbtn nbtn-orange">Hire Me</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow au1">Multimedia Specialist &amp; Technical Developer</p>
+    <h1 class="hn">
+      <span class="l1">KENNETH</span>
+      <span class="l2">REVES</span>
+      <span class="l3">ANTONIL</span>
+    </h1>
+    <p class="hero-sub au4"><strong>Broadcast video editor at TV5.</strong> Full-stack developer. Content architect. Building at the intersection of storytelling and technology — from live streams to production-grade web apps.</p>
+    <div class="hero-links au5">
+      <span class="hl">Video Editing</span>
+      <span class="hl">PWA Development</span>
+      <span class="hl">OBS Architecture</span>
+      <span class="hl">Firebase</span>
+      <span class="hl">Content Strategy</span>
+      <a href="https://radiogames.online" target="_blank" class="hl live-app">🎮 radiogames.online</a>
+      <a href="https://www.youtube.com/@krastoriesph" target="_blank" class="hl yt">▶ @krastoriesph</a>
+      <span class="hl">Binangonan, PH 🇵🇭</span>
+    </div>
+  </div>
+  <div class="hero-bottom au6">
+    <div class="hb"><div class="hb-n">6<span>+</span></div><div class="hb-l">Years Creating</div></div>
+    <div class="hb"><div class="hb-n">TV<span>5</span></div><div class="hb-l">Broadcast Editor</div></div>
+    <div class="hb"><div class="hb-n">2<span>+</span></div><div class="hb-l">Live App Builds</div></div>
+    <div class="hb"><div class="hb-n">∞</div><div class="hb-l">Ideas Per Day</div></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <s class="o">VIDEO EDITING</s><s>✦</s><s class="g">TV5 BROADCAST</s><s>✦</s>
+    <s>PWA DEVELOPMENT</s><s>✦</s><s class="o">LIVE STREAMING</s><s>✦</s>
+    <s class="g">FIREBASE</s><s>✦</s><s>OBS ARCHITECTURE</s><s>✦</s>
+    <s class="r">RADIOGAMES.ONLINE</s><s>✦</s><s class="g">@KRASTORIESPH</s><s>✦</s>
+    <s>DATA ANALYTICS</s><s>✦</s><s class="o">GRAPHIC DESIGN</s><s>✦</s>
+    <s class="o">VIDEO EDITING</s><s>✦</s><s class="g">TV5 BROADCAST</s><s>✦</s>
+    <s>PWA DEVELOPMENT</s><s>✦</s><s class="o">LIVE STREAMING</s><s>✦</s>
+    <s class="g">FIREBASE</s><s>✦</s><s>OBS ARCHITECTURE</s><s>✦</s>
+    <s class="r">RADIOGAMES.ONLINE</s><s>✦</s><s class="g">@KRASTORIESPH</s><s>✦</s>
+    <s>DATA ANALYTICS</s><s>✦</s><s class="o">GRAPHIC DESIGN</s><s>✦</s>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="r">
+    <p class="sk">// 01 — About</p>
+    <h2 class="bh" style="margin-bottom:2.5rem">Where Broadcast<br/>Meets <em>Code.</em></h2>
+    <div class="about-body">
+      <p>I'm <strong>Kenneth Reves Antonil</strong> — a multimedia artist and developer who bridges broadcast production and full-stack engineering. Most people do one. I do both.</p>
+      <p>Currently delivering <strong>broadcast-quality video</strong> for TV5, while building gamified web platforms, architecting live productions, and growing digital audiences from the ground up.</p>
+      <p>My edge is owning the <strong>full pipeline</strong> — from creative concept and script to code deployment and performance analytics.</p>
+    </div>
+    <div class="loc"><span class="loc-dot"></span>Binangonan, Calabarzon — Open to Remote</div>
+  </div>
+  <div class="r" style="transition-delay:.15s">
+    <p class="sk">Experience</p>
+    <div class="timeline">
+      <div class="tl now">
+        <div class="tl-yr">2025 – PRESENT</div>
+        <div class="tl-role">Video Editor</div>
+        <div class="tl-co"><strong>TV5</strong> — Broadcast Television</div>
+      </div>
+      <div class="tl now">
+        <div class="tl-yr">2019 – PRESENT</div>
+        <div class="tl-role">Content Creator &amp; Channel Manager</div>
+        <div class="tl-co"><strong>Self-Employed / Freelance</strong></div>
+      </div>
+      <div class="tl">
+        <div class="tl-yr">2024 – 2025</div>
+        <div class="tl-role">Report Analyst</div>
+        <div class="tl-co"><strong>Amplify Solutions Inc.</strong></div>
+      </div>
+      <div class="tl">
+        <div class="tl-yr">ONGOING</div>
+        <div class="tl-role">Freelance Video Editor &amp; Graphic Artist</div>
+        <div class="tl-co"><strong>Various YouTube &amp; Digital Clients</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK BENTO -->
+<section id="work">
+  <div class="sec-head r">
+    <div>
+      <p class="sk">// 02 — Selected Work</p>
+      <h2 class="bh">THE <em>Work</em></h2>
+    </div>
+    <a href="#projects" style="font-family:'Syne Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);text-decoration:none;opacity:.7">View all ↓</a>
+  </div>
+  <div class="bento r" style="transition-delay:.1s">
+    <!-- TV5 -->
+    <div class="bc bc-1">
+      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
+      <div class="bc-badge">FEATURED</div>
+      <div class="bc-big-num">01</div>
+      <div class="bc-content">
+        <p class="bc-tag">Broadcast · TV5 · 2025–Present</p>
+        <h3 class="bc-title">TV5 Broadcast Video Editing</h3>
+        <p class="bc-desc">Network-grade video editing with precision pacing, audio visualizers, and seamless scene transitions for one of the Philippines' major TV networks.</p>
+      </div>
+    </div>
+    <!-- RB Live -->
+    <a href="https://radiogames.online" target="_blank" class="bc bc-2">
+      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
+      <div class="bc-badge">LIVE ↗</div>
+      <div class="bc-big-num">02</div>
+      <div class="bc-content">
+        <p class="bc-tag">Full-Stack PWA · radiogames.online</p>
+        <h3 class="bc-title">RB Live — Gamified Social Platform</h3>
+        <p class="bc-desc">Real-time PWA with Firebase, reward systems, and voucher integrations. Click to visit live.</p>
+      </div>
+    </a>
+    <!-- OBS -->
+    <div class="bc bc-3">
+      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
+      <div class="bc-big-num">03</div>
+      <div class="bc-content">
+        <p class="bc-tag">Technical · Live Streaming</p>
+        <h3 class="bc-title">Custom OBS Broadcast Dashboards</h3>
+        <p class="bc-desc">JS-driven control panels managing sponsor ads, lower thirds, and scene switching via keyboard triggers.</p>
+      </div>
+    </div>
+    <!-- KRA Stories -->
+    <a href="https://www.youtube.com/@krastoriesph" target="_blank" class="bc bc-4">
+      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
+      <div class="bc-badge">WATCH ▶</div>
+      <div class="bc-big-num">04</div>
+      <div class="bc-content">
+        <p class="bc-tag">YouTube · @krastoriesph</p>
+        <h3 class="bc-title">K.R.A Stories Channel</h3>
+        <p class="bc-desc">End-to-end channel management — scripting, editing, thumbnails, viral ideation. Click to watch.</p>
+      </div>
+    </a>
+    <!-- Horror Live -->
+    <div class="bc bc-5">
+      <div class="bc-glow"></div><div class="bc-bg-pattern"></div>
+      <div class="bc-big-num">05</div>
+      <div class="bc-content">
+        <p class="bc-tag">Live Production · Horror &amp; Petty Night</p>
+        <h3 class="bc-title">TV-Level Live Storytelling Broadcasts</h3>
+        <p class="bc-desc">Advanced OBS setups, custom scene logic, and real-time interactive elements for live horror storytelling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="skills-intro r">
+    <div>
+      <p class="sk">// 03 — Skills</p>
+      <p class="skills-stmt">Built for<br/><strong>every medium.</strong><br/>Limited by none.</p>
+    </div>
+    <div></div>
+  </div>
+  <div class="skills-cols r" style="transition-delay:.1s">
+    <div class="sk-col">
+      <p class="sk-head">Multimedia</p>
+      <div class="si">Broadcast Video Editing</div>
+      <div class="si">Digital Content Creation</div>
+      <div class="si">Scriptwriting</div>
+      <div class="si">OBS Studio</div>
+      <div class="si">HTML/CSS Overlays</div>
+      <div class="si">Live Stream Architecture</div>
+      <div class="si">Audio Post-Production</div>
+    </div>
+    <div class="sk-col">
+      <p class="sk-head">Technical &amp; Dev</p>
+      <div class="si">Progressive Web Apps</div>
+      <div class="si">Firebase Realtime DB</div>
+      <div class="si">Cloud Messaging</div>
+      <div class="si">Full-Stack JS</div>
+      <div class="si">Broadcast Dashboards</div>
+      <div class="si">Real-time Systems</div>
+      <div class="si">HTML / CSS</div>
+    </div>
+    <div class="sk-col">
+      <p class="sk-head">Digital Strategy</p>
+      <div class="si">Social Media Management</div>
+      <div class="si">YouTube Optimization</div>
+      <div class="si">Viral Topic Ideation</div>
+      <div class="si">Gamification Design</div>
+      <div class="si">Reward Systems</div>
+      <div class="si">Thumbnail Design</div>
+      <div class="si">Graphic Design</div>
+    </div>
+    <div class="sk-col">
+      <p class="sk-head">Analytics</p>
+      <div class="si">Data Reporting</div>
+      <div class="si">Performance Analysis</div>
+      <div class="si">Trend Forecasting</div>
+      <div class="si">Stakeholder Reporting</div>
+      <div class="si">Process Optimization</div>
+      <div class="si">Audience Insights</div>
+      <div class="si">Retention Strategy</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="sec-head r">
+    <div>
+      <p class="sk">// 04 — Featured Projects</p>
+      <h2 class="bh">BUILT <em>Different</em></h2>
+    </div>
+  </div>
+  <div class="proj-list">
+    <div class="pi r" onclick="window.open('https://radiogames.online','_blank')">
+      <div class="pi-num">01</div>
+      <div>
+        <h3 class="pi-name">RB Live — Social Media Web App</h3>
+        <p class="pi-role">Lead Developer &amp; Strategist</p>
+        <p class="pi-desc">A gamified social media platform for real-time interaction. Engineered as a full-stack PWA using Firebase for real-time database management and push notifications. Features a sustainable business model with interactive reward systems and digital voucher integrations — designed for scale from the ground up.</p>
+        <div class="pi-tags">
+          <span class="pi-tag">PWA</span>
+          <span class="pi-tag">Firebase</span>
+          <span class="pi-tag">Realtime DB</span>
+          <span class="pi-tag">Gamification</span>
+          <span class="pi-tag">Push Notifications</span>
+          <span class="pi-tag">Full-Stack</span>
         </div>
+        <a href="https://radiogames.online" target="_blank" class="pi-link gold-link" onclick="event.stopPropagation()">🌐 Visit radiogames.online ↗</a>
+      </div>
+      <div class="pi-right"><div class="pi-year">Active</div><div class="pi-arrow">↗</div></div>
     </div>
 
-    <div id="dashboard-section" class="hidden">
-        <nav>
-            <div class="nav-logo">
-                <img src="https://i.imgur.com/7d3ROpd.jpeg"> </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="text-align: right; line-height: 1;">
-                    <span id="role-tag" style="background:var(--accent-color); color:black; font-size:0.55rem; padding:2px 6px; border-radius:4px; font-weight:900; display: inline-block; margin-bottom: 4px;"></span><br>
-                    <span id="user-display" style="font-size:0.75rem; color:var(--text-dim); font-weight: 600;"></span>
-                </div>
-                <button onclick="handleLogout()" style="width:auto; padding:8px 16px; font-size:0.7rem; background: #333; color: white;">LOGOUT</button>
-            </div>
-        </nav>
-
-        <div class="dashboard-wrapper">
-            <div class="sidebar-left">
-                <div class="card" style="margin-bottom: 20px;">
-                    <h3><i data-lucide="activity" class="icon-sm"></i> Project Pulse</h3>
-                    <div style="display: flex; gap: 10px;">
-                        <div class="stat-badge">
-                            <span class="stat-val" id="total-pitches-count">0</span>
-                            <span class="stat-label">Total Pitches</span>
-                        </div>
-                        <div class="stat-badge">
-                            <span class="stat-val" id="completed-pitches-count">0</span>
-                            <span class="stat-label">Wrapped</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-bottom: 20px;">
-                    <h3><i data-lucide="megaphone" class="icon-sm"></i> Announcements</h3>
-                    <div id="announcement-board" style="font-size: 0.85rem; color: #ccc; max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
-                        </div>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="newAnnouncement" placeholder="Broadcast message..." style="margin:0; font-size: 0.75rem;">
-                        <button onclick="postAnnouncement()" style="width: 45px; padding:0;"><i data-lucide="send" style="width:16px;"></i></button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><i data-lucide="plus-circle" class="icon-sm"></i> New Pitch</h3>
-                    <label style="font-size:0.7rem; color:#888; font-weight: bold; margin-bottom: 5px; display: block;">PRIORITY</label>
-                    <select id="pPriority">
-                        <option value="Normal">Normal</option>
-                        <option value="Urgent">Urgent</option>
-                        <option value="Backlog">Backlog</option>
-                    </select>
-                    <input type="date" id="pDate">
-                    <input type="text" id="pLoc" placeholder="Location">
-                    <input type="text" id="pCam" placeholder="Assign Camera/DP Email">
-                    <input type="text" id="pEditor" placeholder="Assign Editor Email">
-                    <input type="url" id="pMedia" placeholder="Reference Link">
-                    <textarea id="pAbout" rows="4" placeholder="Describe the story concept..."></textarea>
-                    <button onclick="addPitch()">POST TO HUB</button>
-                </div>
-            </div>
-
-            <div class="main-feed">
-                <div class="hub-tabs">
-                    <div class="hub-tab active" id="tab-approval" onclick="switchTab('approval')">For Approval</div>
-                    <div class="hub-tab" id="tab-production" onclick="switchTab('production')">For Production</div>
-                    <div class="hub-tab" id="tab-airing" onclick="switchTab('airing')">For Airing</div>
-                </div>
-
-                <div style="margin-bottom: 15px; display: flex; gap: 10px;">
-                    <input type="text" id="feedSearch" placeholder="🔍 Search production board..." style="margin:0; background: #111;" onkeyup="filterFeed()">
-                </div>
-
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h3 style="border:none; margin:0;"><i data-lucide="clapperboard" class="icon-sm"></i> <span id="board-title">Approval Board</span></h3>
-                        <div id="clock" style="font-size:0.9rem; font-weight:900; color:var(--accent-color); background: #000; padding: 5px 12px; border-radius: 6px; border: 1px solid #333;"></div>
-                    </div>
-                    <div id="pitch-list">Loading feed...</div>
-                </div>
-            </div>
-
-            <div class="sidebar-right">
-                <div class="card" style="margin-bottom: 20px;">
-                    <h3><i data-lucide="user-cog" class="icon-sm"></i> Profile Settings</h3>
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="updateNameInput" placeholder="Change Name..." style="margin:0; font-size: 0.75rem;">
-                        <button onclick="updateProfileName()" style="width:60px; padding: 0; font-size: 0.6rem;">SAVE</button>
-                    </div>
-                </div>
-
-                <div class="card" style="margin-bottom: 20px;">
-                    <h3><i data-lucide="check-square" class="icon-sm"></i> My Tasks</h3>
-                    <div id="task-list"></div>
-                    <div style="display:flex; gap:8px; margin-top:15px;">
-                        <input type="text" id="newTask" placeholder="Add task..." style="margin:0;">
-                        <button onclick="addTask()" style="width:50px; padding: 0;">+</button>
-                    </div>
-                </div>
-                <div class="card" id="greeting-card" style="background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border-left: 4px solid var(--accent-color);">
-                    <h4 id="greeting-msg" style="margin:0; font-size:0.95rem; color: var(--accent-color);">Welcome back!</h4>
-                    <p id="role-greeting" style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Systems are operational.</p>
-                    <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
-                    <div style="font-size: 0.65rem; color: var(--success); display: flex; align-items: center; gap: 5px;">
-                        <i data-lucide="sun" class="icon-sm"></i> Production Weather: Clear Sky
-                    </div>
-                </div>
-            </div>
+    <div class="pi r" style="transition-delay:.1s">
+      <div class="pi-num">02</div>
+      <div>
+        <h3 class="pi-name">Custom Broadcast Architecture</h3>
+        <p class="pi-role">Technical Broadcast Designer</p>
+        <p class="pi-desc">Bespoke control dashboards for professional live streaming. Built JavaScript-driven OBS control systems to seamlessly manage sponsor ads, lower thirds, and scene transitions via localized keyboard triggers — enabling TV-level production with full technical control.</p>
+        <div class="pi-tags">
+          <span class="pi-tag">OBS Studio</span>
+          <span class="pi-tag">JavaScript</span>
+          <span class="pi-tag">HTML/CSS Overlays</span>
+          <span class="pi-tag">Live Production</span>
         </div>
+      </div>
+      <div class="pi-right"><div class="pi-year">Ongoing</div><div class="pi-arrow">↗</div></div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCWyMPS1vabyK_uGAWzmmeW9iuL7ksEUBE",
-            authDomain: "prod-hub-d43c4.firebaseapp.com",
-            projectId: "prod-hub-d43c4",
-            storageBucket: "prod-hub-d43c4.firebasestorage.app",
-            messagingSenderId: "262638128725",
-            appId: "1:262638128725:web:12136df5187f89deff8edc"
-        };
+    <div class="pi r" style="transition-delay:.2s" onclick="window.open('https://www.youtube.com/@krastoriesph','_blank')">
+      <div class="pi-num">03</div>
+      <div>
+        <h3 class="pi-name">K.R.A Stories — YouTube Channel</h3>
+        <p class="pi-role">Creator &amp; Channel Manager</p>
+        <p class="pi-desc">End-to-end digital channel management combining creative production and strategic growth. Handles thumbnail design, script writing, viral topic ideation, and content strategy — applied across Petty Night and Horror LIVE Storytelling broadcast formats.</p>
+        <div class="pi-tags">
+          <span class="pi-tag">YouTube</span>
+          <span class="pi-tag">Content Strategy</span>
+          <span class="pi-tag">Video Editing</span>
+          <span class="pi-tag">Live Streaming</span>
+          <span class="pi-tag">Graphic Design</span>
+        </div>
+        <a href="https://www.youtube.com/@krastoriesph" target="_blank" class="pi-link yt-link" onclick="event.stopPropagation()">▶ Watch @krastoriesph ↗</a>
+      </div>
+      <div class="pi-right"><div class="pi-year">2019–Present</div><div class="pi-arrow">↗</div></div>
+    </div>
+  </div>
+</section>
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const provider = new firebase.auth.GoogleAuthProvider();
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-grid">
+    <div class="r">
+      <p class="sk">// 05 — Contact</p>
+      <h2 class="contact-h">
+        <span class="stroke">LET'S</span>
+        <span class="fill">BUILD</span>
+        <span class="stroke">TOGETHER.</span>
+      </h2>
+      <p class="contact-copy">Whether you need broadcast-quality editing, a technical developer, or both — open to commissions, full-time roles, and creative collaborations. Based in the Philippines, available globally.</p>
+    </div>
+    <div class="r" style="transition-delay:.12s">
+      <div class="avail"><span class="avail-dot"></span>Available for projects</div>
+      <div>
+        <a href="mailto:kennethantonil199811@gmail.com" class="cl">
+          <div><p class="cl-type">Email</p><p class="cl-val">kennethantonil199811@gmail.com</p></div>
+          <span class="cl-arr">↗</span>
+        </a>
+        <a href="tel:+639618280589" class="cl">
+          <div><p class="cl-type">Phone</p><p class="cl-val">+63 961 828 0589</p></div>
+          <span class="cl-arr">↗</span>
+        </a>
+        <a href="https://radiogames.online" target="_blank" class="cl app-cl">
+          <div><p class="cl-type">Live App</p><p class="cl-val">radiogames.online</p></div>
+          <span class="cl-arr">↗</span>
+        </a>
+        <a href="https://www.youtube.com/@krastoriesph" target="_blank" class="cl yt-cl">
+          <div><p class="cl-type">YouTube</p><p class="cl-val">@krastoriesph</p></div>
+          <span class="cl-arr">↗</span>
+        </a>
+        <a href="#" class="cl">
+          <div><p class="cl-type">Location</p><p class="cl-val">Binangonan, Calabarzon, PH 🇵🇭</p></div>
+          <span class="cl-arr">↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
-        let currentHubTab = 'approval';
-        let currentUserRole = '';
+<footer>
+  <span class="fn">Kenneth Reves Antonil</span>
+  <span>Multimedia Specialist &amp; Technical Developer</span>
+  <span>© 2026</span>
+</footer>
 
-        lucide.createIcons();
-
-        function switchTab(tab) {
-            currentHubTab = tab;
-            document.querySelectorAll('.hub-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            
-            const titles = { approval: 'Approval Board', production: 'Production Hub', airing: 'Airing Schedule' };
-            document.getElementById('board-title').innerText = titles[tab];
-            loadGlobalPitches();
-        }
-
-        function filterFeed() {
-            const query = document.getElementById('feedSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('.pitch-row');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? "block" : "none";
-            });
-        }
-
-        setInterval(() => {
-            const now = new Date();
-            const clockEl = document.getElementById('clock');
-            if(clockEl) clockEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-        }, 1000);
-
-        auth.onAuthStateChanged(async user => {
-            if (user) {
-                document.getElementById('auth-section').classList.add('hidden');
-                document.getElementById('dashboard-section').classList.remove('hidden');
-                
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                if(userDoc.exists) {
-                    const userData = userDoc.data();
-                    currentUserRole = userData.role;
-                    document.getElementById('role-tag').innerText = currentUserRole;
-                    document.getElementById('user-display').innerText = userData.displayName || user.displayName || user.email.split('@')[0].toUpperCase();
-                    
-                    const hour = new Date().getHours();
-                    let timeGreet = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
-                    document.getElementById('greeting-msg').innerText = `${timeGreet}, ${currentUserRole}!`;
-                    document.getElementById('role-greeting').innerText = `Ready to lead the crew, ${userData.displayName || 'Chief'}?`;
-                }
-
-                loadGlobalPitches();
-                loadPersonalTasks(user.uid);
-                loadAnnouncements();
-            } else {
-                document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('dashboard-section').classList.add('hidden');
-            }
-        });
-
-        async function updateProfileName() {
-            const newName = document.getElementById('updateNameInput').value;
-            if(!newName) return alert("Enter a name");
-            const user = auth.currentUser;
-            await db.collection("users").doc(user.uid).update({ displayName: newName });
-            document.getElementById('user-display').innerText = newName;
-            document.getElementById('updateNameInput').value = '';
-            alert("Name updated successfully!");
-        }
-
-        async function handleGoogleAuth() {
-            const selectedRole = document.getElementById('user-role').value;
-            try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                if (!userDoc.exists) {
-                    await db.collection("users").doc(user.uid).set({
-                        role: selectedRole,
-                        email: user.email,
-                        displayName: user.displayName || user.email.split('@')[0]
-                    });
-                }
-            } catch(err) {
-                alert("Login Error: " + err.message);
-            }
-        }
-
-        function handleLogout() { auth.signOut(); }
-
-        function loadAnnouncements() {
-            db.collection("announcements").orderBy("createdAt", "desc").limit(10).onSnapshot(snapshot => {
-                const board = document.getElementById('announcement-board');
-                board.innerHTML = snapshot.docs.map(doc => `
-                    <div class="announcement-item">
-                        <div style="color:var(--accent-color); font-weight:bold; font-size:0.6rem;">${doc.data().author}:</div>
-                        <div>${doc.data().text}</div>
-                    </div>
-                `).join('');
-            });
-        }
-
-        async function postAnnouncement() {
-            const txt = document.getElementById('newAnnouncement').value;
-            if(!txt) return;
-            const userDoc = await db.collection("users").doc(auth.currentUser.uid).get();
-            const authorName = userDoc.exists ? userDoc.data().displayName : (auth.currentUser.displayName || auth.currentUser.email.split('@')[0]);
-            
-            await db.collection("announcements").add({
-                text: txt,
-                author: authorName,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('newAnnouncement').value = '';
-        }
-
-        // EXCLUSIVE: UPDATE DATE FOR AP AND HOST
-        async function editAiringDate(id) {
-            if (currentUserRole !== 'Associate Producer' && currentUserRole !== 'Host') {
-                return alert("Only Associate Producers or Hosts can edit the Airing Date.");
-            }
-            const newDate = prompt("Enter New Airing Date (YYYY-MM-DD):");
-            if (newDate) {
-                await db.collection("pitches").doc(id).update({ date: newDate });
-                alert("Date Updated!");
-            }
-        }
-
-        function loadGlobalPitches() {
-            db.collection("pitches").orderBy("createdAt", "desc").onSnapshot(snapshot => {
-                const list = document.getElementById('pitch-list');
-                let total = snapshot.size;
-                let completed = 0;
-
-                const filteredDocs = snapshot.docs.filter(doc => {
-                    const p = doc.data();
-                    const isFullyDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done' && p.tasks?.vo === 'done';
-                    if(isFullyDone) completed++;
-
-                    if (currentHubTab === 'approval') return !p.approved;
-                    if (currentHubTab === 'production') return p.approved && !isFullyDone;
-                    if (currentHubTab === 'airing') return p.approved && isFullyDone;
-                    return true;
-                });
-
-                if(filteredDocs.length === 0) {
-                    list.innerHTML = `<div style="text-align:center; padding:40px; color:#555; font-size:0.8rem;">No projects in this stage.</div>`;
-                } else {
-                    list.innerHTML = filteredDocs.map(doc => {
-                        const p = doc.data();
-                        const isOwner = auth.currentUser.email === p.author;
-                        const priorityClass = p.priority === 'Urgent' ? 'priority-high' : '';
-                        const tagClass = p.priority === 'Urgent' ? 'tag-urgent' : '';
-                        const isStoryDone = p.tasks?.script === 'done' && p.tasks?.shoot === 'done' && p.tasks?.edit === 'done' && p.tasks?.vo === 'done';
-                        const storyDoneClass = isStoryDone ? 'status-done' : '';
-                        
-                        const isAdminRole = (currentUserRole === 'Associate Producer' || currentUserRole === 'Producer');
-                        const canApprove = (currentUserRole === 'Associate Producer' || currentUserRole === 'Host' || currentUserRole === 'Producer');
-
-                        // Permission Logic
-                        const isAssignedEditor = auth.currentUser.email === p.editor;
-                        const isAssignedCam = auth.currentUser.email === p.cameraman;
-                        const hasFullAccess = isAdminRole || isOwner;
-
-                        return `
-                            <div class="pitch-row ${priorityClass} ${storyDoneClass}">
-                                <span class="priority-tag ${tagClass}">${p.priority || 'Normal'}</span>
-                                ${isStoryDone ? '<span class="airing-tag">READY FOR AIRING</span>' : ''}
-                                <div style="font-weight:bold; color:var(--accent-color); margin-bottom:5px; font-size: 0.9rem; display:flex; align-items:center;">
-                                    📅 ${p.date || 'TBD'} 
-                                    ${(currentUserRole === 'Associate Producer' || currentUserRole === 'Host') ? `<button class="btn-date-edit" onclick="editAiringDate('${doc.id}')">EDIT DATE</button>` : ''}
-                                </div>
-                                <div class="assignment-box">
-                                    <span><i data-lucide="camera" class="icon-sm"></i> Cam: <b>${p.cameraman || 'Unassigned'}</b></span>
-                                    <span><i data-lucide="scissors" class="icon-sm"></i> Editor: <b>${p.editor || 'Unassigned'}</b></span>
-                                </div>
-                                <div style="display:grid; grid-template-columns:1fr; font-size:0.75rem; color:#aaa; margin: 10px 0; gap: 5px;">
-                                    <span><i data-lucide="map-pin" class="icon-sm"></i> Loc: ${p.location}</span>
-                                </div>
-                                <div style="color:#eee; background:rgba(255,255,255,0.03); padding:15px; border-radius:8px; font-size:0.9rem; border: 1px solid #333;">
-                                    ${p.about}
-                                    ${p.mediaLink ? `<br><a href="${p.mediaLink}" target="_blank" class="media-link-btn"><i data-lucide="external-link" class="icon-sm"></i> REF MEDIA</a>` : ''}
-                                    ${p.scriptLink ? `<br><a href="${p.scriptLink}" target="_blank" class="media-link-btn" style="color:var(--success)"><i data-lucide="file-text" class="icon-sm"></i> VIEW SCRIPT</a>` : ''}
-                                    ${p.voLink ? `<br><a href="${p.voLink}" target="_blank" class="media-link-btn" style="color:var(--ongoing)"><i data-lucide="mic" class="icon-sm"></i> LISTEN VO</a>` : ''}
-                                </div>
-                                
-                                ${p.approved ? `
-                                <div class="prod-tasks">
-                                    <span style="font-size:0.6rem; color:var(--accent-color); font-weight:900; letter-spacing: 0.5px;">PROGRESS TRACKER</span>
-                                    <div class="task-grid">
-                                        <div class="task-btn ${p.tasks?.script || ''}">
-                                            <i data-lucide="file-text" class="icon-sm"></i> 
-                                            SCRIPT
-                                            <span class="status-text">${p.tasks?.script || 'pending'}</span>
-                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'script', this.value, ${isOwner || isAdminRole})">
-                                                <option value="" ${p.tasks?.script === '' ? 'selected' : ''}>-- Select --</option>
-                                                <option value="ongoing" ${p.tasks?.script === 'ongoing' ? 'selected' : ''}>Ongoing</option>
-                                                <option value="pending" ${p.tasks?.script === 'pending' ? 'selected' : ''}>Wait Apprv</option>
-                                                <option value="done" ${p.tasks?.script === 'done' ? 'selected' : ''}>Approved</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="task-btn ${p.tasks?.shoot || ''}">
-                                            <i data-lucide="video" class="icon-sm"></i> SHOOT
-                                            <span class="status-text">${p.tasks?.shoot || 'pending'}</span>
-                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'shoot', this.value, ${isOwner || isAdminRole || isAssignedCam})">
-                                                <option value="" ${p.tasks?.shoot === '' ? 'selected' : ''}>-- Status --</option>
-                                                <option value="ongoing" ${p.tasks?.shoot === 'ongoing' ? 'selected' : ''}>Shooting</option>
-                                                <option value="done" ${p.tasks?.shoot === 'done' ? 'selected' : ''}>Done</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="task-btn ${p.tasks?.edit || ''}">
-                                            <i data-lucide="scissors" class="icon-sm"></i> EDIT
-                                            <span class="status-text">${p.tasks?.edit || 'pending'}</span>
-                                            <select class="task-select" onchange="handleTaskDropdown('${doc.id}', 'edit', this.value, ${isAssignedEditor || isAdminRole})">
-                                                <option value="" ${p.tasks?.edit === '' ? 'selected' : ''}>-- Status --</option>
-                                                <option value="ongoing" ${p.tasks?.edit === 'ongoing' ? 'selected' : ''}>Editing</option>
-                                                <option value="done" ${p.tasks?.edit === 'done' ? 'selected' : ''}>Done</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="task-btn ${p.tasks?.vo || ''}">
-                                            <i data-lucide="mic" class="icon-sm"></i> VO
-                                            <span class="status-text">${p.tasks?.vo || 'pending'}</span>
-                                            <select class="task-select" onchange="handleVOActionDropdown('${doc.id}', this.value, ${currentUserRole === 'Host' || currentUserRole === 'Associate Producer'})">
-                                                <option value="" ${p.tasks?.vo === '' ? 'selected' : ''}>-- Status --</option>
-                                                <option value="ongoing" ${p.tasks?.vo === 'ongoing' ? 'selected' : ''}>Recording</option>
-                                                <option value="done" ${p.tasks?.vo === 'done' ? 'selected' : ''}>Done</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-
-                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                                    <span style="font-size:0.6rem; color:#555; margin-top:12px;">Authored by: ${p.author}</span>
-                                    <div>
-                                        ${!p.approved && canApprove ? `<button class="btn-approve" onclick="approvePitch('${doc.id}')">APPROVE PITCH</button>` : ''}
-                                        ${isOwner ? `<button class="btn-delete" onclick="deletePitch('${doc.id}')">Delete</button>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-                
-                document.getElementById('total-pitches-count').innerText = total;
-                document.getElementById('completed-pitches-count').innerText = completed;
-                lucide.createIcons();
-            });
-        }
-
-        // NEW DROPDOWN HANDLER WITH PERMISSIONS
-        async function handleTaskDropdown(docId, taskType, newValue, hasPermission) {
-            if (!hasPermission) {
-                alert("Permission Denied: You are not authorized to update this task.");
-                loadGlobalPitches(); // Refresh to revert dropdown
-                return;
-            }
-
-            // Custom Script Link Prompt
-            if (taskType === 'script' && (newValue === 'pending' || newValue === 'done')) {
-                const link = prompt("Confirm/Paste Script Link:");
-                if (link) await db.collection("pitches").doc(docId).update({ scriptLink: link });
-            }
-
-            const updateObj = {};
-            updateObj[`tasks.${taskType}`] = newValue;
-            await db.collection("pitches").doc(docId).update(updateObj);
-        }
-
-        // NEW VO DROPDOWN HANDLER
-        async function handleVOActionDropdown(id, newValue, hasPermission) {
-            if (!hasPermission) {
-                alert("Only the Program Host or Associate Producer can update Voice Over.");
-                loadGlobalPitches();
-                return;
-            }
-            
-            if (newValue === "done") {
-                const link = prompt("Paste Voice Over File Link:");
-                if (link) {
-                    await db.collection("pitches").doc(id).update({ 
-                        voLink: link, 
-                        "tasks.vo": "done" 
-                    });
-                } else {
-                    loadGlobalPitches();
-                }
-            } else {
-                await db.collection("pitches").doc(id).update({ "tasks.vo": newValue });
-            }
-        }
-
-        // MAINTAINED FUNCTIONS
-        async function approvePitch(id) {
-            if(confirm("Approve this story for production?")) {
-                await db.collection("pitches").doc(id).update({ approved: true });
-                switchTab('production');
-            }
-        }
-
-        async function addPitch() {
-            const about = document.getElementById('pAbout').value;
-            if(!about) return alert("Please enter story details.");
-            await db.collection("pitches").add({
-                priority: document.getElementById('pPriority').value,
-                date: document.getElementById('pDate').value,
-                location: document.getElementById('pLoc').value,
-                cameraman: document.getElementById('pCam').value,
-                editor: document.getElementById('pEditor').value,
-                mediaLink: document.getElementById('pMedia').value,
-                about: about,
-                author: auth.currentUser.email,
-                approved: false,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                tasks: { script: "", shoot: "", edit: "", vo: "" }
-            });
-            ['pAbout', 'pLoc', 'pCam', 'pEditor', 'pDate', 'pMedia'].forEach(id => document.getElementById(id).value = '');
-            switchTab('approval');
-        }
-
-        async function deletePitch(id) {
-            if(confirm("Delete this pitch?")) {
-                await db.collection("pitches").doc(id).delete();
-            }
-        }
-
-        function loadPersonalTasks(uid) {
-            db.collection("tasks").where("uid", "==", uid).orderBy("createdAt", "asc").onSnapshot(snapshot => {
-                const list = document.getElementById('task-list');
-                list.innerHTML = snapshot.docs.map(doc => {
-                    const t = doc.data();
-                    return `
-                        <div style="display:flex; align-items:center; justify-content:space-between; background:#222; padding:10px; margin-bottom:8px; border-radius:8px; font-size:0.8rem; border: 1px solid #333;">
-                            <span style="${t.done ? 'text-decoration:line-through; opacity:0.4' : ''}">${t.text}</span>
-                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${doc.id}', ${t.done})" style="width:auto; margin:0; cursor:pointer;">
-                        </div>
-                    `;
-                }).join('');
-            });
-        }
-
-        async function addTask() {
-            const val = document.getElementById('newTask').value;
-            if(!val) return;
-            await db.collection("tasks").add({
-                uid: auth.currentUser.uid,
-                text: val,
-                done: false,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('newTask').value = '';
-        }
-
-        async function toggleTask(id, status) {
-            await db.collection("tasks").doc(id).update({ done: !status });
-        }
-    </script>
+<script>
+(function(){
+  var cur=document.getElementById('CUR'),cur2=document.getElementById('CUR2');
+  var mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX; my=e.clientY;
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+  });
+  (function loop(){
+    rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+    cur2.style.left=rx+'px'; cur2.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a,button,.bc,.pi').forEach(function(el){
+    el.addEventListener('mouseenter',function(){
+      cur.style.width='24px'; cur.style.height='24px'; cur.style.background='var(--gold)';
+    });
+    el.addEventListener('mouseleave',function(){
+      cur.style.width='12px'; cur.style.height='12px'; cur.style.background='var(--orange)';
+    });
+  });
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e,i){
+      if(e.isIntersecting){
+        setTimeout(function(){e.target.classList.add('on');},i*80);
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.r').forEach(function(el){io.observe(el);});
+})();
+</script>
 </body>
 </html>
